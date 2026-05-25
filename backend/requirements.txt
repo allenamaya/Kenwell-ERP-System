@@ -6,33 +6,3 @@ psycopg2-binary==2.9.9
 Pillow==10.1.0
 PyJWT==2.13.0
 djangorestframework-simplejwt==5.5.1
-
-# Production Server
-gunicorn==21.2.0
-whitenoise==6.6.0
-django-environ==0.21.0
-dj-database-url==2.1.0
-
-# Testing
-pytest==7.4.3
-pytest-django==4.7.0
-pytest-cov==4.1.0
-pytest-asyncio==0.21.1
-factory-boy==3.3.0
-faker==20.1.0
-
-# Code Quality & Linting
-flake8==6.1.0
-black==23.12.0
-isort==5.13.2
-pylint==3.0.3
-
-# Monitoring & Error Tracking
-sentry-sdk==1.39.2
-
-# Cache Management
-redis==5.0.1
-django-redis==5.4.0
-
-# Email Configuration
-django-anymail==10.2
