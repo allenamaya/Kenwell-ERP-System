@@ -4,12 +4,68 @@ __v0_devtools.tsx
 __v0_jsx-dev-runtime.ts
 .snowflake/
 .v0-trash/
-.vercel/
+
+# Dependencies
+node_modules/
+venv/
+backend/venv/
+.Python
+*.egg-info/
+dist/
+build/
+__pycache__/
 
 # Environment variables
-.env*.local
+.env
+.env.local
+.env.*.local
+.env.production.local
 
-# Common ignores
-node_modules
-.next/
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.sublime-*
 .DS_Store
+.prettierignore
+
+# Next.js & Vercel
+.next/
+out/
+.vercel/
+*.map
+.turbo/
+
+# Django
+db.sqlite3
+*.pyc
+/staticfiles/
+/media/
+/logs/
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Temporary files
+.tmp/
+*.tmp
+.cache/
+
+# OS files
+Thumbs.db
+.Thumbs.db
