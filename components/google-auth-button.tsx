@@ -1,0 +1,117 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { apiClient } from '@/lib/api';
+import { Button } from '@/components/ui/button';
+
+export function GoogleAuthButton() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [googleReady, setGoogleReady] = useState(false);
+
+  useEffect(() => {
+    // Load Google Sign-In script
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      if (window.google?.accounts?.id) {
+        window.google.accounts.id.initialize({
+          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '',
+          callback: handleGoogleCallback,
+        });
+        setGoogleReady(true);
+      }
+    };
+    document.head.appendChild(script);
+  }, []);
+
+  const handleGoogleCallback = async (response: any) => {
+    try {
+      setIsLoading(true);
+      setError('');
+      console.log('[v0] Google auth token received');
+
+      // Send token to backend
+      const result = await apiClient.post('/api/auth/google-login/', {
+        token: response.credential,
+      });
+
+      console.log('[v0] Google auth successful:', result);
+
+      // Store tokens
+      if (result.access) {
+        apiClient.setToken(result.access);
+        localStorage.setItem('refresh_token', result.refresh);
+        router.push('/dashboard');
+      }
+    } catch (err) {
+      console.error('[v0] Google auth error:', err);
+      setError(
+        err instanceof Error ? err.message : 'Google authentication failed'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = () => {
+    if (window.google?.accounts?.id) {
+      window.google.accounts.id.renderButton(
+        document.getElementById('google-signin-button') || document.body,
+        { theme: 'outline', size: 'large' }
+      );
+    }
+  };
+
+  if (!googleReady) {
+    return (
+      <Button disabled className="w-full bg-gray-200 text-gray-500">
+        Loading Google Sign-In...
+      </Button>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
+          {error}
+        </div>
+      )}
+
+      <div
+        id="google-signin-button"
+        className="flex justify-center"
+        onClick={handleGoogleSignIn}
+      />
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-border" />
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-background text-muted-foreground">or</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Declare google window interface
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: any) => void;
+          renderButton: (element: HTMLElement, options: any) => void;
+          prompt: () => void;
+        };
+      };
+    };
+  }
+}
