@@ -4,6 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:backend": "cd backend && python manage.py runserver 0.0.0.0:8000",
+    "dev:frontend": "next dev -p 3000",
+    "dev:all": "concurrently \"pnpm dev:backend\" \"pnpm dev:frontend\" --names \"Backend,Frontend\" --prefix \"[{name}]\" --kill-others-on-fail",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --max-warnings 0",
@@ -81,6 +84,7 @@
     "@types/react-dom": "^19",
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
+    "concurrently": "^10.0.3",
     "eslint": "^8.56.0",
     "eslint-config-next": "^14.1.0",
     "jest": "^29.7.0",
