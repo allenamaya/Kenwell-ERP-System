@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getCustomers } from '@/lib/api';
+import { getCustomers, deleteAgent } from '@/lib/api';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { CustomerModal } from '@/components/modals/customer-modal';
 import Link from 'next/link';
 
 interface Customer {
@@ -26,6 +27,9 @@ export default function CustomersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [customerTypeFilter, setCustomerTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | undefined>();
+  const [isDeleting, setIsDeleting] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -57,6 +61,32 @@ export default function CustomersPage() {
     return () => clearTimeout(debounceTimer);
   }, [searchTerm, customerTypeFilter, statusFilter]);
 
+  const handleDeleteCustomer = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this customer?')) return;
+
+    setIsDeleting(id);
+    try {
+      // Use the deleteAgent function temporarily until we have deleteCustomer
+      await deleteAgent(id);
+      setCustomers((prev) => prev.filter((customer) => customer.id !== id));
+    } catch (error) {
+      console.error('[v0] Failed to delete customer:', error);
+      alert('Failed to delete customer');
+    } finally {
+      setIsDeleting(null);
+    }
+  };
+
+  const handleOpenModal = (customer?: Customer) => {
+    setSelectedCustomer(customer);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedCustomer(undefined);
+  };
+
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
       active: 'bg-green-100 text-green-800',
@@ -79,11 +109,12 @@ export default function CustomersPage() {
             Manage customer relationships and information
           </p>
         </div>
-        <Link href="/dashboard/customers/new">
-          <Button className="bg-primary text-white hover:bg-primary/90">
-            + Add New Customer
-          </Button>
-        </Link>
+        <Button
+          onClick={() => handleOpenModal()}
+          className="bg-primary text-white hover:bg-primary/90"
+        >
+          + Add New Customer
+        </Button>
       </div>
 
       {/* Filters */}
@@ -141,64 +172,70 @@ export default function CustomersPage() {
           </Card>
         ) : customers.length > 0 ? (
           customers.map((customer) => (
-            <Link
-              key={customer.id}
-              href={`/dashboard/customers/${customer.id}`}
-              className="block"
-            >
-              <Card className="p-4 border border-border hover:bg-accent/5 transition cursor-pointer">
-                <div className="flex items-center justify-between gap-4">
-                  {/* Customer Info */}
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">
-                        {customer.first_name.charAt(0)}{customer.last_name.charAt(0)}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-foreground">
-                          {customer.first_name} {customer.last_name}
-                        </h3>
-                        <p className="text-xs text-muted-foreground">
-                          ID: {customer.customer_id}
-                        </p>
-                      </div>
-                      <span className={`px-2 py-1 rounded text-xs font-medium ml-auto ${getStatusColor(customer.status)}`}>
-                        {customer.status.charAt(0).toUpperCase() + customer.status.slice(1)}
-                      </span>
+            <Card key={customer.id} className="p-4 border border-border hover:bg-accent/5 transition">
+              <div className="flex items-center justify-between gap-4">
+                {/* Customer Info */}
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">
+                      {customer.first_name.charAt(0)}{customer.last_name.charAt(0)}
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">Email</p>
-                        <p className="font-medium text-foreground truncate">{customer.email}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Phone</p>
-                        <p className="font-medium text-foreground">{customer.phone}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Type</p>
-                        <p className="font-medium text-foreground capitalize">{customer.customer_type}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Member Since</p>
-                        <p className="font-medium text-foreground">
-                          {new Date(customer.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground">
+                        {customer.first_name} {customer.last_name}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        ID: {customer.customer_id}
+                      </p>
+                    </div>
+                    <span className={`px-2 py-1 rounded text-xs font-medium ml-auto ${getStatusColor(customer.status)}`}>
+                      {customer.status.charAt(0).toUpperCase() + customer.status.slice(1)}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div>
+                      <p className="text-muted-foreground">Email</p>
+                      <p className="font-medium text-foreground truncate">{customer.email}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Phone</p>
+                      <p className="font-medium text-foreground">{customer.phone}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Type</p>
+                      <p className="font-medium text-foreground capitalize">{customer.customer_type}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Member Since</p>
+                      <p className="font-medium text-foreground">
+                        {new Date(customer.created_at).toLocaleDateString()}
+                      </p>
                     </div>
                   </div>
+                </div>
 
-                  {/* Actions */}
+                {/* Actions */}
+                <div className="flex flex-col gap-2">
                   <Button
                     variant="outline"
                     size="sm"
+                    onClick={() => handleOpenModal(customer)}
                     className="text-primary border-primary hover:bg-primary hover:text-white"
                   >
-                    View
+                    Edit
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDeleteCustomer(customer.id!)}
+                    disabled={isDeleting === customer.id}
+                    className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white"
+                  >
+                    {isDeleting === customer.id ? 'Deleting...' : 'Delete'}
                   </Button>
                 </div>
-              </Card>
-            </Link>
+              </div>
+            </Card>
           ))
         ) : (
           <Card className="p-8 border border-border text-center">
@@ -209,6 +246,32 @@ export default function CustomersPage() {
           </Card>
         )}
       </div>
+
+      {/* Customer Modal */}
+      <CustomerModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSuccess={() => {
+          handleCloseModal();
+          setIsLoading(true);
+          // Trigger refresh
+          const params: Record<string, unknown> = {};
+          if (searchTerm) {
+            params.search = searchTerm;
+          }
+          if (customerTypeFilter !== 'all') {
+            params.customer_type = customerTypeFilter;
+          }
+          if (statusFilter !== 'all') {
+            params.status = statusFilter;
+          }
+          getCustomers(params).then((response: any) => {
+            setCustomers(Array.isArray(response) ? response : response.results || []);
+            setIsLoading(false);
+          });
+        }}
+        customer={selectedCustomer}
+      />
     </div>
   );
 }

@@ -103,8 +103,33 @@ export default function LoginPage() {
           </form>
 
           {/* Footer */}
-          <div className="mt-6 text-center text-sm text-muted-foreground">
-            <p>Contact your administrator if you need an account</p>
+          <div className="mt-8 space-y-4">
+            <div className="text-center text-sm text-muted-foreground">
+              <p>Contact your administrator if you need an account</p>
+            </div>
+
+            {/* Hidden Navigation Links */}
+            <div className="pt-4 border-t border-border flex gap-4 justify-center text-xs">
+              <button
+                onClick={() => alert('Agent Portal: Contact admin for agent credentials')}
+                className="text-muted-foreground hover:text-primary transition relative group"
+              >
+                Agent Access
+                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-background border border-border rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition pointer-events-none">
+                  For insurance agents
+                </span>
+              </button>
+              <span className="text-muted-foreground/30">•</span>
+              <button
+                onClick={() => alert('Admin Portal: Contact Kenwell support for admin access')}
+                className="text-muted-foreground hover:text-primary transition relative group"
+              >
+                Admin Portal
+                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-background border border-border rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition pointer-events-none">
+                  System administrators only
+                </span>
+              </button>
+            </div>
           </div>
         </div>
       </Card>

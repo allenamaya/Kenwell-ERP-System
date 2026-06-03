@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
   getAgents,
   getCustomers,
@@ -22,6 +24,7 @@ interface DashboardStats {
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     totalAgents: 0,
@@ -42,19 +45,25 @@ export default function DashboardPage() {
         if (user?.role === 'admin' || user?.role === 'operations') {
           const [agents, customers, policies, claims, invoices, topPerformers] =
             await Promise.all([
-              getAgents({ limit: 1 }).catch(() => ({ count: 0 })),
-              getCustomers({ limit: 1 }).catch(() => ({ count: 0 })),
-              getPolicies({ status: 'active', limit: 1 }).catch(() => ({ count: 0 })),
-              getClaims({ status: 'submitted', limit: 1 }).catch(() => ({ count: 0 })),
+              getAgents().catch(() => ({})),
+              getCustomers().catch(() => ({})),
+              getPolicies({ status: 'active' }).catch(() => ({})),
+              getClaims({ status: 'submitted' }).catch(() => ({})),
               getOutstandingInvoices().catch(() => []),
               getTopPerformers(5).catch(() => []),
             ]);
 
+          // Handle both paginated and direct responses
+          const agentCount = agents.count !== undefined ? agents.count : Array.isArray(agents) ? agents.length : 0;
+          const customerCount = customers.count !== undefined ? customers.count : Array.isArray(customers) ? customers.length : 0;
+          const policyCount = policies.count !== undefined ? policies.count : Array.isArray(policies) ? policies.length : 0;
+          const claimCount = claims.count !== undefined ? claims.count : Array.isArray(claims) ? claims.length : 0;
+
           setStats({
-            totalAgents: agents.count || 0,
-            totalCustomers: customers.count || 0,
-            activePolicies: policies.count || 0,
-            pendingClaims: claims.count || 0,
+            totalAgents: agentCount,
+            totalCustomers: customerCount,
+            activePolicies: policyCount,
+            pendingClaims: claimCount,
             outstandingInvoices: Array.isArray(invoices) ? invoices.length : 0,
             topPerformers: Array.isArray(topPerformers) ? topPerformers : [],
           });
@@ -209,15 +218,24 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {(user?.role === 'admin' || user?.role === 'operations') && (
             <>
-              <button className="p-4 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition font-medium">
-                Add New Agent
-              </button>
-              <button className="p-4 bg-secondary/10 text-secondary rounded-lg hover:bg-secondary/20 transition font-medium">
-                Register Customer
-              </button>
-              <button className="p-4 bg-accent/10 text-accent rounded-lg hover:bg-accent/20 transition font-medium">
-                Create Policy
-              </button>
+              <Button
+                onClick={() => router.push('/dashboard/agents')}
+                className="p-4 bg-primary/10 text-primary hover:bg-primary/20 transition font-medium"
+              >
+                Manage Agents
+              </Button>
+              <Button
+                onClick={() => router.push('/dashboard/customers')}
+                className="p-4 bg-secondary/10 text-secondary hover:bg-secondary/20 transition font-medium"
+              >
+                Manage Customers
+              </Button>
+              <Button
+                onClick={() => router.push('/dashboard/policies')}
+                className="p-4 bg-accent/10 text-accent hover:bg-accent/20 transition font-medium"
+              >
+                View Policies
+              </Button>
             </>
           )}
         </div>
