@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { getProducts } from '@/lib/api';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import Link from 'next/link';
+import { useEffect, useState } from "react";
+import { getInsuranceProducts } from "@/lib/api";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
 interface Product {
   id: number;
@@ -24,26 +24,28 @@ interface Product {
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        console.log('[v0] Fetching products');
+        console.log("[v0] Fetching products");
         const params: Record<string, unknown> = {};
 
         if (searchTerm) {
           params.search = searchTerm;
         }
-        if (categoryFilter !== 'all') {
+        if (categoryFilter !== "all") {
           params.category = categoryFilter;
         }
 
-        const response: any = await getProducts(params);
-        setProducts(Array.isArray(response) ? response : response.results || []);
+        const response: any = await getInsuranceProducts(params);
+        setProducts(
+          Array.isArray(response) ? response : response.results || [],
+        );
       } catch (error) {
-        console.error('[v0] Failed to fetch products:', error);
+        console.error("[v0] Failed to fetch products:", error);
         setProducts([]);
       } finally {
         setIsLoading(false);
@@ -55,13 +57,13 @@ export default function ProductsPage() {
   }, [searchTerm, categoryFilter]);
 
   const categories = [
-    'auto',
-    'home',
-    'health',
-    'life',
-    'travel',
-    'business',
-    'disability',
+    "auto",
+    "home",
+    "health",
+    "life",
+    "travel",
+    "business",
+    "disability",
   ];
 
   return (
@@ -69,7 +71,10 @@ export default function ProductsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <Link href="/dashboard/policies" className="text-sm text-primary hover:underline mb-2 inline-block">
+          <Link
+            href="/dashboard/policies"
+            className="text-sm text-primary hover:underline mb-2 inline-block"
+          >
             ← Back to Policies
           </Link>
           <h1 className="font-heading text-3xl font-bold text-foreground">
@@ -110,7 +115,8 @@ export default function ProductsPage() {
           </div>
           <div className="flex items-end">
             <p className="text-sm text-muted-foreground">
-              {products.length} product{products.length !== 1 ? 's' : ''} available
+              {products.length} product{products.length !== 1 ? "s" : ""}{" "}
+              available
             </p>
           </div>
         </div>
@@ -166,20 +172,24 @@ export default function ProductsPage() {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Base Premium:</span>
                     <span className="font-medium text-primary">
-                      ${product.base_premium?.toFixed(2) || '0.00'}
+                      ${product.base_premium?.toFixed(2) || "0.00"}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Coverage Limit:</span>
+                    <span className="text-muted-foreground">
+                      Coverage Limit:
+                    </span>
                     <span className="font-medium text-foreground">
-                      ${product.coverage_limit?.toLocaleString() || '0'}
+                      ${product.coverage_limit?.toLocaleString() || "0"}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Coverage Range:</span>
+                    <span className="text-muted-foreground">
+                      Coverage Range:
+                    </span>
                     <span className="font-medium text-foreground">
-                      ${product.min_coverage?.toLocaleString() || '0'} -{' '}
-                      ${product.max_coverage?.toLocaleString() || '0'}
+                      ${product.min_coverage?.toLocaleString() || "0"} - $
+                      {product.max_coverage?.toLocaleString() || "0"}
                     </span>
                   </div>
                 </div>
