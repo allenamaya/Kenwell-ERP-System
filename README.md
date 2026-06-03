@@ -1,5 +1,4 @@
-<img width="196" height="89" alt="logo" src="https://github.com/user-attachments/assets/b8ed3143-2710-43ae-a51b-dd5c8802939b" />
-
+<img width="196" height="89" alt="logo(1)" src="https://github.com/user-attachments/assets/e19bf8c6-035a-44dd-9059-094cd1af85dd" />
 # Kenwell Insurance Agency ERP System
 
 **Project Manager & Author:** Allen Ahlee Amaya
