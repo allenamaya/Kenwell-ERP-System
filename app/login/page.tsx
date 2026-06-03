@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { GoogleAuthButton } from '@/components/google-auth-button';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -54,6 +55,9 @@ export default function LoginPage() {
             </h1>
             <p className="text-muted-foreground">ERP Management System</p>
           </div>
+
+          {/* Google OAuth */}
+          <GoogleAuthButton />
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
