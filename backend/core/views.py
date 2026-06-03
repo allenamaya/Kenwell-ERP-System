@@ -10,6 +10,7 @@ from .serializers import (
     UserSerializer, UserDetailSerializer, UserRegisterSerializer,
     UserProfileSerializer, AuditLogSerializer
 )
+from .oauth import handle_google_oauth_login
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -49,6 +50,26 @@ class LoginView(TokenObtainPairView):
     """User login endpoint"""
     serializer_class = CustomTokenObtainPairSerializer
     permission_classes = [AllowAny]
+
+
+class GoogleOAuthLoginView(viewsets.ViewSet):
+    """Google OAuth login endpoint"""
+    permission_classes = [AllowAny]
+    
+    @action(detail=False, methods=['post'])
+    def login(self, request):
+        """
+        Handle Google OAuth login
+        Expected POST data: { "token": "<google_access_token>" }
+        """
+        token = request.data.get('token')
+        if not token:
+            return Response(
+                {'error': 'Google token is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        return handle_google_oauth_login(token)
 
 
 class UserViewSet(viewsets.ModelViewSet):

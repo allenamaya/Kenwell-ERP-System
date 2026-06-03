@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { api } from '@/lib/api';
+import { apiClient } from '@/lib/api';
 import { ChevronLeft, Download, Upload } from 'lucide-react';
 import Link from 'next/link';
 
@@ -37,7 +37,7 @@ export default function ClaimDetailPage() {
   useEffect(() => {
     const fetchClaim = async () => {
       try {
-        const response = await api.get(`/claims/${id}/`);
+        const response = await apiClient.get(`/claims/${id}/`);
         setClaim(response.data);
       } catch (error) {
         console.error('Failed to fetch claim:', error);

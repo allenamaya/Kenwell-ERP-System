@@ -1,35 +1,38 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { api } from '@/lib/api';
-import { ChevronLeft } from 'lucide-react';
-import Link from 'next/link';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { apiClient } from "@/lib/api";
+import { ChevronLeft } from "lucide-react";
+import Link from "next/link";
 
 export default function NewClaimPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    policy: '',
-    customer: '',
-    incident_date: '',
-    incident_description: '',
-    claim_amount: '',
-    location_of_incident: '',
+    policy: "",
+    customer: "",
+    incident_date: "",
+    incident_description: "",
+    claim_amount: "",
+    location_of_incident: "",
     third_party_involved: false,
     police_report_filed: false,
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value, type } = e.target as HTMLInputElement;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+      [name]:
+        type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
     }));
   };
 
@@ -38,11 +41,11 @@ export default function NewClaimPage() {
     setLoading(true);
 
     try {
-      await api.post('/claims/', formData);
-      router.push('/dashboard/claims');
+      await apiClient.post("/claims/", formData);
+      router.push("/dashboard/claims");
     } catch (error) {
-      console.error('Failed to create claim:', error);
-      alert('Failed to create claim. Please try again.');
+      console.error("Failed to create claim:", error);
+      alert("Failed to create claim. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -120,7 +123,9 @@ export default function NewClaimPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="location_of_incident">Location of Incident</Label>
+                <Label htmlFor="location_of_incident">
+                  Location of Incident
+                </Label>
                 <Input
                   id="location_of_incident"
                   name="location_of_incident"
@@ -132,7 +137,9 @@ export default function NewClaimPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="incident_description">Incident Description *</Label>
+              <Label htmlFor="incident_description">
+                Incident Description *
+              </Label>
               <Textarea
                 id="incident_description"
                 name="incident_description"
@@ -154,7 +161,10 @@ export default function NewClaimPage() {
                   onChange={handleChange}
                   className="h-4 w-4 rounded border-gray-300"
                 />
-                <Label htmlFor="third_party" className="font-normal cursor-pointer">
+                <Label
+                  htmlFor="third_party"
+                  className="font-normal cursor-pointer"
+                >
                   Third party involved in incident
                 </Label>
               </div>
@@ -181,7 +191,7 @@ export default function NewClaimPage() {
                 </Button>
               </Link>
               <Button type="submit" disabled={loading} className="bg-primary">
-                {loading ? 'Submitting...' : 'Submit Claim'}
+                {loading ? "Submitting..." : "Submit Claim"}
               </Button>
             </div>
           </form>

@@ -9,7 +9,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from core.views import (
-    LoginView, UserViewSet, UserProfileViewSet, AuditLogViewSet
+    LoginView, GoogleOAuthLoginView, UserViewSet, UserProfileViewSet, AuditLogViewSet
 )
 from agents.views import AgentViewSet, AgentCommissionViewSet, AgentPerformanceViewSet
 from customers.views import CustomerViewSet, CustomerInteractionViewSet, CustomerNoteViewSet
@@ -54,6 +54,7 @@ router.register(r'financial-reports', FinancialReportViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/login/', LoginView.as_view(), name='token_obtain_pair'),
+    path('api/auth/google-login/', GoogleOAuthLoginView.as_view({'post': 'login'}), name='google_login'),
     path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/', include(router.urls)),
 ]

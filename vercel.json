@@ -10,7 +10,6 @@
     }
   },
   "env": {
-    "NEXT_PUBLIC_API_URL": "@api_url_production",
     "NEXT_PUBLIC_ENVIRONMENT": "production"
   },
   "regions": ["sfo1"],
