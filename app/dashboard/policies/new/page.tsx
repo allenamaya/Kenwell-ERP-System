@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   getInsuranceProducts,
@@ -36,7 +36,7 @@ interface Agent {
   };
 }
 
-export default function NewPolicyPage() {
+function NewPolicyPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const preselectedProductId = searchParams.get("product");
@@ -393,5 +393,18 @@ export default function NewPolicyPage() {
         </form>
       </Card>
     </div>
+  );
+}
+export default function NewPolicyPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="text-center py-8">
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      }
+    >
+      <NewPolicyPageContent />
+    </Suspense>
   );
 }
