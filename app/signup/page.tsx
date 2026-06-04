@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { GoogleAuthButton } from '@/components/google-auth-button';
-import { API_URL } from '@/lib/config';
+import { Config } from '@/lib/config';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -80,7 +80,7 @@ export default function SignupPage() {
       console.log('[v0] Signup: Creating new customer account');
 
       // Create user account via API
-      const registerResponse = await fetch(`${API_URL}/users/register/`, {
+      const registerResponse = await fetch(`${Config.api.baseUrl}/users/register/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ export default function SignupPage() {
       console.log('[v0] Signup: Account created successfully');
 
       // Get JWT token
-      const loginResponse = await fetch(`${API_URL}/auth/login/`, {
+      const loginResponse = await fetch(`${Config.api.baseUrl}/auth/login/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
