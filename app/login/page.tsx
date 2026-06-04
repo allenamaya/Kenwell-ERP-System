@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -110,6 +111,14 @@ export default function LoginPage() {
           <div className="mt-8 space-y-4">
             <div className="text-center text-sm text-muted-foreground">
               <p>Contact your administrator if you need an account</p>
+            </div>
+
+            {/* Signup Link */}
+            <div className="text-center text-sm pt-2">
+              <span className="text-muted-foreground">Don&apos;t have an account? </span>
+              <Link href="/signup" className="text-primary hover:underline font-medium">
+                Sign Up
+              </Link>
             </div>
 
             {/* Hidden Navigation Links */}

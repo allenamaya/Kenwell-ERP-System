@@ -39,25 +39,49 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        console.log('[v0] Fetching dashboard data');
+        console.log('[v0] Dashboard: Starting fetch for user:', user?.username, 'Role:', user?.role);
 
         // Fetch data based on user role
         if (user?.role === 'admin' || user?.role === 'operations') {
+          console.log('[v0] Dashboard: User is admin/operations, fetching data...');
+          
           const [agents, customers, policies, claims, invoices, topPerformers] =
             await Promise.all([
-              getAgents().catch(() => ({})),
-              getCustomers().catch(() => ({})),
-              getPolicies({ status: 'active' }).catch(() => ({})),
-              getClaims({ status: 'submitted' }).catch(() => ({})),
-              getOutstandingInvoices().catch(() => []),
-              getTopPerformers(5).catch(() => []),
+              getAgents().catch((err) => {
+                console.error('[v0] Dashboard: getAgents error:', err);
+                return {};
+              }),
+              getCustomers().catch((err) => {
+                console.error('[v0] Dashboard: getCustomers error:', err);
+                return {};
+              }),
+              getPolicies({ status: 'active' }).catch((err) => {
+                console.error('[v0] Dashboard: getPolicies error:', err);
+                return {};
+              }),
+              getClaims({ status: 'submitted' }).catch((err) => {
+                console.error('[v0] Dashboard: getClaims error:', err);
+                return {};
+              }),
+              getOutstandingInvoices().catch((err) => {
+                console.error('[v0] Dashboard: getOutstandingInvoices error:', err);
+                return [];
+              }),
+              getTopPerformers(5).catch((err) => {
+                console.error('[v0] Dashboard: getTopPerformers error:', err);
+                return [];
+              }),
             ]);
+
+          console.log('[v0] Dashboard: Raw responses:', { agents, customers, policies, claims, invoices, topPerformers });
 
           // Handle both paginated and direct responses
           const agentCount = agents.count !== undefined ? agents.count : Array.isArray(agents) ? agents.length : 0;
           const customerCount = customers.count !== undefined ? customers.count : Array.isArray(customers) ? customers.length : 0;
           const policyCount = policies.count !== undefined ? policies.count : Array.isArray(policies) ? policies.length : 0;
           const claimCount = claims.count !== undefined ? claims.count : Array.isArray(claims) ? claims.length : 0;
+
+          console.log('[v0] Dashboard: Calculated stats:', { agentCount, customerCount, policyCount, claimCount });
 
           setStats({
             totalAgents: agentCount,
@@ -67,9 +91,11 @@ export default function DashboardPage() {
             outstandingInvoices: Array.isArray(invoices) ? invoices.length : 0,
             topPerformers: Array.isArray(topPerformers) ? topPerformers : [],
           });
+        } else {
+          console.log('[v0] Dashboard: User role is not admin/operations:', user?.role);
         }
       } catch (error) {
-        console.error('[v0] Failed to fetch dashboard data:', error);
+        console.error('[v0] Dashboard: Failed to fetch dashboard data:', error);
       } finally {
         setIsLoading(false);
       }
