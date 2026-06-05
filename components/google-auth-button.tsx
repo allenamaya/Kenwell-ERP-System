@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/lib/auth-context';
 
 export function GoogleAuthButton() {
   const router = useRouter();
+  const { refresh } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [googleReady, setGoogleReady] = useState(false);
@@ -29,6 +31,16 @@ export function GoogleAuthButton() {
     document.head.appendChild(script);
   }, []);
 
+  // Render the Google Button automatically when ready
+  useEffect(() => {
+    if (googleReady && window.google?.accounts?.id) {
+      window.google.accounts.id.renderButton(
+        document.getElementById('google-signin-button')!,
+        { theme: 'outline', size: 'large', width: '380px' }
+      );
+    }
+  }, [googleReady]);
+
   const handleGoogleCallback = async (response: any) => {
     try {
       setIsLoading(true);
@@ -36,7 +48,7 @@ export function GoogleAuthButton() {
       console.log('[v0] Google auth token received');
 
       // Send token to backend
-      const result = await apiClient.post('/api/auth/google-login/', {
+      const result = await apiClient.post<any>('/api/auth/google-login/', {
         token: response.credential,
       });
 
@@ -46,24 +58,19 @@ export function GoogleAuthButton() {
       if (result.access) {
         apiClient.setToken(result.access);
         localStorage.setItem('refresh_token', result.refresh);
+        
+        // Refresh AuthContext to update current user state
+        await refresh();
+        
         router.push('/dashboard');
       }
     } catch (err) {
       console.error('[v0] Google auth error:', err);
       setError(
-        err instanceof Error ? err.message : 'Google authentication failed'
+          err instanceof Error ? err.message : 'Google authentication failed'
       );
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleGoogleSignIn = () => {
-    if (window.google?.accounts?.id) {
-      window.google.accounts.id.renderButton(
-        document.getElementById('google-signin-button') || document.body,
-        { theme: 'outline', size: 'large' }
-      );
     }
   };
 
@@ -86,7 +93,6 @@ export function GoogleAuthButton() {
       <div
         id="google-signin-button"
         className="flex justify-center"
-        onClick={handleGoogleSignIn}
       />
 
       <div className="relative">

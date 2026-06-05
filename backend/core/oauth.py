@@ -12,15 +12,26 @@ from .serializers import UserDetailSerializer
 def verify_google_token(token: str):
     """Verify Google OAuth token and get user info"""
     try:
+        # Check if it looks like a JWT (ID Token has three segments separated by dots)
+        is_jwt = len(token.split('.')) == 3
+        
+        # Use appropriate endpoint and parameter
+        if is_jwt:
+            url = "https://oauth2.googleapis.com/tokeninfo"
+            params = {"id_token": token}
+        else:
+            url = "https://www.googleapis.com/oauth2/v1/tokeninfo"
+            params = {"access_token": token}
+            
         # Verify token with Google
-        google_discovery_url = "https://www.googleapis.com/oauth2/v1/tokeninfo"
         response = requests.get(
-            google_discovery_url,
-            params={"access_token": token},
+            url,
+            params=params,
             timeout=10
         )
         
         if response.status_code != 200:
+            print(f"[v0] Google token verification failed: {response.status_code} - {response.text}")
             return None
         
         return response.json()
