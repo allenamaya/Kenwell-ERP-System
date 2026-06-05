@@ -24,6 +24,12 @@ class UserSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'created_at']
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.is_superuser or instance.is_staff:
+            data['role'] = 'admin'
+        return data
+
 
 class UserDetailSerializer(serializers.ModelSerializer):
     profile = UserProfileSerializer(read_only=True)
@@ -36,6 +42,12 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.is_superuser or instance.is_staff:
+            data['role'] = 'admin'
+        return data
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):

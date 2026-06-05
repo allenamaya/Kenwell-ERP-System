@@ -23,7 +23,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Add custom claims
         token['username'] = user.username
         token['email'] = user.email
-        token['role'] = user.role
+        token['role'] = 'admin' if (user.is_superuser or user.is_staff) else user.role
         token['first_name'] = user.first_name
         token['last_name'] = user.last_name
         
@@ -38,7 +38,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'id': user.id,
             'username': user.username,
             'email': user.email,
-            'role': user.role,
+            'role': 'admin' if (user.is_superuser or user.is_staff) else user.role,
             'first_name': user.first_name,
             'last_name': user.last_name,
         }
@@ -187,6 +187,6 @@ class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         # Admins can see all audit logs, others can only see their own
         user = self.request.user
-        if user.role == 'admin':
+        if user.role == 'admin' or user.is_superuser or user.is_staff:
             return AuditLog.objects.all()
         return AuditLog.objects.filter(user=user)

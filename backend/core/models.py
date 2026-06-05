@@ -32,6 +32,8 @@ class User(AbstractUser):
         return f"{self.get_full_name()} ({self.get_role_display()})"
     
     def save(self, *args, **kwargs):
+        if self.is_superuser or self.is_staff:
+            self.role = 'admin'
         super().save(*args, **kwargs)
         # Optimize profile picture
         if self.profile_picture:
