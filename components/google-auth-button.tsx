@@ -13,7 +13,11 @@ export function GoogleAuthButton() {
   const [error, setError] = useState('');
   const [googleReady, setGoogleReady] = useState(false);
 
+  const clientID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
   useEffect(() => {
+    if (!clientID) return;
+
     // Load Google Sign-In script
     const script = document.createElement('script');
     script.src = 'https://accounts.google.com/gsi/client';
@@ -22,24 +26,24 @@ export function GoogleAuthButton() {
     script.onload = () => {
       if (window.google?.accounts?.id) {
         window.google.accounts.id.initialize({
-          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '',
+          client_id: clientID,
           callback: handleGoogleCallback,
         });
         setGoogleReady(true);
       }
     };
     document.head.appendChild(script);
-  }, []);
+  }, [clientID]);
 
   // Render the Google Button automatically when ready
   useEffect(() => {
-    if (googleReady && window.google?.accounts?.id) {
+    if (googleReady && window.google?.accounts?.id && clientID) {
       window.google.accounts.id.renderButton(
         document.getElementById('google-signin-button')!,
         { theme: 'outline', size: 'large', width: '380px' }
       );
     }
-  }, [googleReady]);
+  }, [googleReady, clientID]);
 
   const handleGoogleCallback = async (response: any) => {
     try {
@@ -73,6 +77,14 @@ export function GoogleAuthButton() {
       setIsLoading(false);
     }
   };
+
+  if (!clientID) {
+    return (
+      <div className="bg-amber-50 border border-amber-200 text-amber-800 p-3 rounded text-sm text-center dark:bg-amber-950/20 dark:border-amber-900/30 dark:text-amber-300">
+        Google Sign-In is not configured. Please set the <code className="bg-amber-100/50 dark:bg-amber-950/40 px-1 py-0.5 rounded font-mono">NEXT_PUBLIC_GOOGLE_CLIENT_ID</code> environment variable.
+      </div>
+    );
+  }
 
   if (!googleReady) {
     return (
