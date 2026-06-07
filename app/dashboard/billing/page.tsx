@@ -372,7 +372,7 @@ export default function BillingPage() {
               {selectedInvoice.line_items && selectedInvoice.line_items.length > 0 && (
                 <div>
                   <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Line Items</h4>
-                  <div className="border border-border rounded-lg overflow-hidden">
+                  <div className="border border-border rounded-lg overflow-x-auto">
                     <table className="w-full border-collapse text-sm">
                       <thead>
                         <tr className="bg-muted/50 border-b border-border text-left">
