@@ -63,11 +63,15 @@ function NewPolicyPageContent() {
     const fetchData = async () => {
       try {
         console.log("[v0] Fetching products, customers, and agents");
-        const [productsData, customersData, agentsData] = await Promise.all([
-          getInsuranceProducts({}),
+        const [productsRes, customersRes, agentsRes] = await Promise.all([
+          getInsuranceProducts(),
           getCustomers({}),
           getAgents({}),
         ]);
+
+        const productsData = productsRes as any;
+        const customersData = customersRes as any;
+        const agentsData = agentsRes as any;
 
         setProducts(
           Array.isArray(productsData)
@@ -89,7 +93,7 @@ function NewPolicyPageContent() {
             Array.isArray(productsData)
               ? productsData
               : productsData.results || []
-          ).find((p) => p.id === parseInt(preselectedProductId));
+          ).find((p: any) => p.id === parseInt(preselectedProductId));
           if (product) {
             setSelectedProduct(product);
             const minPrem = parseFloat((product as any).minimum_premium) || 0;

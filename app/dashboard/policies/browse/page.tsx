@@ -12,10 +12,12 @@ interface Product {
   id: number;
   product_name: string;
   product_type: string;
+  category: string;
   description: string;
   minimum_premium: string;
   maximum_premium: string;
   is_active: boolean;
+  policy_count?: number;
 }
 
 export default function BrowseProductsPage() {
@@ -25,6 +27,7 @@ export default function BrowseProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [customerProfile, setCustomerProfile] = useState<any>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   
   // Selection / Modal State
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -178,6 +181,35 @@ export default function BrowseProductsPage() {
     return icons[type] || '🛡️';
   };
 
+  const getCategoryDetails = (cat: string) => {
+    const details: Record<string, { label: string; icon: string }> = {
+      all: { label: 'All Coverage', icon: '✨' },
+      auto: { label: 'Auto/Motor', icon: '🚗' },
+      home: { label: 'Home/Property', icon: '🏠' },
+      health: { label: 'Health', icon: '🏥' },
+      life: { label: 'Life', icon: '🧬' },
+      travel: { label: 'Travel', icon: '✈️' },
+      business: { label: 'Business', icon: '💼' },
+      disability: { label: 'Disability', icon: '🛡️' },
+    };
+    return details[cat] || { label: cat, icon: '🛡' };
+  };
+
+  const categories = ['all', 'auto', 'home', 'health', 'life', 'travel', 'business', 'disability'];
+
+  // Only consider active products for display
+  const activeProducts = products.filter(p => p.is_active);
+
+  // Top 3 most popular products (sorted by policy_count descending)
+  const popularProducts = [...activeProducts]
+    .sort((a, b) => (b.policy_count || 0) - (a.policy_count || 0))
+    .slice(0, 3);
+
+  // Filter products by selected category tab
+  const filteredProducts = selectedCategory === 'all'
+    ? activeProducts
+    : activeProducts.filter(p => p.category === selectedCategory);
+
   if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -188,70 +220,182 @@ export default function BrowseProductsPage() {
   }
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-10 animate-fade-in pb-12">
       {/* Header */}
       <div>
         <h1 className="font-heading text-4xl font-bold tracking-tight text-foreground bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           Browse Premium Coverage
         </h1>
-        <p className="text-muted-foreground mt-2 text-sm">
-          Explore our range of curated insurance products, configure your custom premium, and get protected instantly.
+        <p className="text-muted-foreground mt-2 text-sm max-w-2xl">
+          Explore our range of curated insurance products, configure your custom premium, and get protected instantly. All premiums are represented in Kenyan Shillings (KSh).
         </p>
       </div>
 
-      {/* Grid of Products */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((product) => {
-          const minPrem = parseFloat(product.minimum_premium) || 0;
-          const maxPrem = parseFloat(product.maximum_premium) || 0;
-          
-          return (
-            <Card
-              key={product.id}
-              className="relative overflow-hidden p-6 border border-border bg-card/60 backdrop-blur-md hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
-            >
-              <div className="space-y-4">
-                {/* Badge/Icon Header */}
-                <div className="flex items-center justify-between">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-2xl">
-                    {getProductTypeIcon(product.product_type)}
-                  </div>
-                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full border border-primary/20 bg-primary/5 text-primary capitalize">
-                    {product.product_type}
-                  </span>
-                </div>
-
-                {/* Info */}
-                <div>
-                  <h3 className="font-heading text-xl font-bold text-foreground group-hover:text-primary transition-colors">
-                    {product.product_name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-2 leading-relaxed min-h-[60px]">
-                    {product.description}
-                  </p>
-                </div>
-
-                {/* Price Display */}
-                <div className="pt-2 border-t border-border/50 text-sm">
-                  <p className="text-muted-foreground font-medium mb-1">Premium Range</p>
-                  <p className="text-lg font-bold text-foreground">
-                    KSh {minPrem.toLocaleString()} - KSh {maxPrem.toLocaleString()}
-                    <span className="text-xs text-muted-foreground font-normal"> / year</span>
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <Button
-                  onClick={() => handleOpenRequestModal(product)}
-                  className="w-full bg-primary hover:bg-primary/90 text-white font-semibold shadow-sm"
+      {/* Most Popular Coverage Section (Top 3) */}
+      {popularProducts.length > 0 && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-bold text-foreground">Most Popular Coverage</h2>
+            <span className="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
+              🔥 Trending
+            </span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {popularProducts.map((product) => {
+              const minPrem = parseFloat(product.minimum_premium) || 0;
+              const maxPrem = parseFloat(product.maximum_premium) || 0;
+              const catDetails = getCategoryDetails(product.category);
+              
+              return (
+                <Card
+                  key={`pop-${product.id}`}
+                  className="relative overflow-hidden p-6 border-2 border-primary/20 bg-gradient-to-b from-primary/5 via-card to-card hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex flex-col justify-between group"
                 >
-                  Configure & Get Protected
-                </Button>
-              </div>
-            </Card>
-          );
-        })}
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-all" />
+                  <div className="space-y-4 relative z-10">
+                    <div className="flex items-center justify-between">
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-2xl">
+                        {getProductTypeIcon(product.product_type)}
+                      </div>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-primary bg-primary/10 text-primary uppercase">
+                        {catDetails.icon} {catDetails.label}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h3 className="font-heading text-lg font-bold text-foreground group-hover:text-primary transition-colors">
+                        {product.product_name}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed min-h-[48px] line-clamp-3">
+                        {product.description}
+                      </p>
+                    </div>
+
+                    <div className="pt-2 border-t border-border/50 text-xs">
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Premium Range</span>
+                        <span className="text-muted-foreground text-[10px]">
+                          Requested {product.policy_count || 0} times
+                        </span>
+                      </div>
+                      <p className="text-base font-bold text-foreground mt-0.5">
+                        KSh {minPrem.toLocaleString()} - KSh {maxPrem.toLocaleString()}
+                        <span className="text-[10px] text-muted-foreground font-normal"> / year</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 relative z-10">
+                    <Button
+                      onClick={() => handleOpenRequestModal(product)}
+                      className="w-full bg-primary hover:bg-primary/90 text-white text-xs py-2 h-9 font-semibold shadow-sm"
+                    >
+                      Configure Coverage
+                    </Button>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Main Catalog with Category Filters */}
+      <div className="space-y-6">
+        <div className="border-b border-border pb-1">
+          <h2 className="text-xl font-bold text-foreground mb-4">All Available Coverage</h2>
+          {/* Category Tabs Scroll Container */}
+          <div className="flex gap-2 overflow-x-auto pb-3 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-none">
+            {categories.map((cat) => {
+              const details = getCategoryDetails(cat);
+              const isActive = selectedCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all whitespace-nowrap border ${
+                    isActive
+                      ? 'bg-primary text-white border-primary shadow-sm scale-105'
+                      : 'bg-card text-muted-foreground border-border hover:bg-muted/40 hover:text-foreground'
+                  }`}
+                >
+                  <span>{details.icon}</span>
+                  <span>{details.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Grid of Filtered Products */}
+        {filteredProducts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredProducts.map((product) => {
+              const minPrem = parseFloat(product.minimum_premium) || 0;
+              const maxPrem = parseFloat(product.maximum_premium) || 0;
+              
+              return (
+                <Card
+                  key={product.id}
+                  className="relative overflow-hidden p-6 border border-border bg-card/60 backdrop-blur-md hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
+                >
+                  <div className="space-y-4">
+                    {/* Badge/Icon Header */}
+                    <div className="flex items-center justify-between">
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-2xl">
+                        {getProductTypeIcon(product.product_type)}
+                      </div>
+                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full border border-primary/20 bg-primary/5 text-primary capitalize">
+                        {product.product_type}
+                      </span>
+                    </div>
+
+                    {/* Info */}
+                    <div>
+                      <h3 className="font-heading text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+                        {product.product_name}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mt-2 leading-relaxed min-h-[60px]">
+                        {product.description}
+                      </p>
+                    </div>
+
+                    {/* Price Display */}
+                    <div className="pt-2 border-t border-border/50 text-sm">
+                      <p className="text-muted-foreground font-medium mb-1">Premium Range</p>
+                      <p className="text-lg font-bold text-foreground">
+                        KSh {minPrem.toLocaleString()} - KSh {maxPrem.toLocaleString()}
+                        <span className="text-xs text-muted-foreground font-normal"> / year</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6">
+                    <Button
+                      onClick={() => handleOpenRequestModal(product)}
+                      className="w-full bg-primary hover:bg-primary/90 text-white font-semibold shadow-sm"
+                    >
+                      Configure & Get Protected
+                    </Button>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        ) : (
+          /* Empty State for category or general */
+          <div className="text-center py-16 bg-card/40 border border-dashed border-border rounded-xl max-w-xl mx-auto p-8 animate-fade-in space-y-4">
+            <div className="text-5xl">📦</div>
+            <h3 className="text-xl font-bold text-foreground">
+              {selectedCategory === 'all' ? 'No insurance products available' : 'No products in this category'}
+            </h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {selectedCategory === 'all'
+                ? 'Insurance products will be displayed here once added by an administrator. Check back soon for coverages.'
+                : 'There are no active insurance products listed in this category right now. Try browsing other categories.'}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Request Form Modal */}

@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         apiClient.setToken(token);
         try {
           const currentUser = await getCurrentUser();
-          setUser(currentUser);
+          setUser(currentUser as any);
         } catch (error) {
           console.error('[v0] Failed to fetch current user:', error);
           apiClient.clearToken();
@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const handleRefresh = async () => {
     try {
       const currentUser = await getCurrentUser();
-      setUser(currentUser);
+      setUser(currentUser as any);
     } catch (error) {
       console.error('[v0] Failed to refresh user:', error);
       handleLogout();

@@ -41,10 +41,11 @@ class ApiClient {
     }
   }
 
-  private getHeaders(): Record<string, string> {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
+  private getHeaders(isFormData: boolean = false): Record<string, string> {
+    const headers: Record<string, string> = {};
+    if (!isFormData) {
+      headers['Content-Type'] = 'application/json';
+    }
 
     if (this.accessToken) {
       headers['Authorization'] = `Bearer ${this.accessToken}`;
@@ -58,7 +59,8 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
-    const headers = this.getHeaders();
+    const isFormData = options.body instanceof FormData;
+    const headers = this.getHeaders(isFormData);
 
     try {
       const response = await fetch(url, {
@@ -94,7 +96,7 @@ class ApiClient {
   async post<T>(endpoint: string, data?: unknown): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'POST',
-      body: data ? JSON.stringify(data) : undefined,
+      body: data instanceof FormData ? data : (data ? JSON.stringify(data) : undefined),
     });
   }
 
@@ -102,7 +104,7 @@ class ApiClient {
   async put<T>(endpoint: string, data?: unknown): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PUT',
-      body: data ? JSON.stringify(data) : undefined,
+      body: data instanceof FormData ? data : (data ? JSON.stringify(data) : undefined),
     });
   }
 
@@ -110,7 +112,7 @@ class ApiClient {
   async patch<T>(endpoint: string, data?: unknown): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PATCH',
-      body: data ? JSON.stringify(data) : undefined,
+      body: data instanceof FormData ? data : (data ? JSON.stringify(data) : undefined),
     });
   }
 
@@ -210,9 +212,9 @@ export async function updateCustomer(id: number, data: unknown) {
   return apiClient.patch(`/api/customers/${id}/`, data);
 }
 
-// Policy API calls
-export async function getInsuranceProducts() {
-  return apiClient.get('/api/products/');
+export async function getInsuranceProducts(params?: Record<string, unknown>) {
+  const query = params ? `?${new URLSearchParams(params as Record<string, string>).toString()}` : '';
+  return apiClient.get(`/api/products/${query}`);
 }
 
 export async function getPolicies(params?: Record<string, unknown>) {

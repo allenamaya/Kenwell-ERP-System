@@ -37,6 +37,7 @@ class CustomerSerializer(serializers.ModelSerializer):
             'id', 'user', 'customer_type', 'customer_id', 'phone', 'email',
             'agent', 'identification_type', 'identification_number',
             'date_of_birth', 'business_registration', 'status',
+            'kra_pin', 'kra_pin_document',
             'preferred_communication', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
@@ -54,6 +55,7 @@ class CustomerDetailSerializer(serializers.ModelSerializer):
             'id', 'user', 'customer_type', 'customer_id', 'phone', 'email',
             'agent', 'identification_type', 'identification_number',
             'date_of_birth', 'business_registration', 'status',
+            'kra_pin', 'kra_pin_document',
             'preferred_communication', 'interactions', 'notes', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']

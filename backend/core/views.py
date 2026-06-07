@@ -116,11 +116,27 @@ class UserViewSet(viewsets.ModelViewSet):
             'refresh': str(tokens),
         }, status=status.HTTP_201_CREATED)
     
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=['get', 'patch', 'delete'])
     def me(self, request):
-        """Get current user details"""
-        serializer = UserDetailSerializer(request.user)
-        return Response(serializer.data)
+        """Get, update, or deactivate current user"""
+        user = request.user
+        if request.method == 'GET':
+            serializer = UserDetailSerializer(user)
+            return Response(serializer.data)
+        elif request.method == 'PATCH':
+            serializer = UserDetailSerializer(user, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+        elif request.method == 'DELETE':
+            user.is_active = False
+            user.is_active_user = False
+            user.save()
+            if hasattr(user, 'customer_profile') and user.customer_profile:
+                profile = user.customer_profile
+                profile.status = 'inactive'
+                profile.save()
+            return Response({'message': 'Account successfully deactivated.'})
     
     @action(detail=False, methods=['post'])
     def change_password(self, request):

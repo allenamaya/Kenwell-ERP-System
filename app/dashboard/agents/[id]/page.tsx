@@ -67,8 +67,8 @@ export default function AgentDetailPage() {
           getAgentCommissions(parseInt(agentId)).catch(() => []),
         ]);
 
-        setAgent(agentData);
-        setPerformance(perfData);
+        setAgent(agentData as any);
+        setPerformance(perfData as any);
         setCommissions(Array.isArray(commData) ? commData : []);
       } catch (err) {
         console.error('[v0] Failed to fetch agent:', err);

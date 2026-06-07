@@ -11,13 +11,26 @@ from .serializers import (
 )
 
 
-class InsuranceProductViewSet(viewsets.ReadOnlyModelViewSet):
-    """Insurance product catalog (read-only)"""
-    queryset = InsuranceProduct.objects.filter(is_active=True)
+class InsuranceProductViewSet(viewsets.ModelViewSet):
+    """Insurance product catalog"""
     serializer_class = InsuranceProductSerializer
     permission_classes = [IsAuthenticated]
-    filterset_fields = ['product_type']
+    filterset_fields = ['product_type', 'category', 'is_active']
     search_fields = ['product_name', 'description']
+    
+    def get_queryset(self):
+        user = self.request.user
+        queryset = InsuranceProduct.objects.all()
+        # Non-admins/non-ops can only see active products
+        if not (user.is_superuser or user.is_staff or user.role in ['admin', 'operations']):
+            queryset = queryset.filter(is_active=True)
+            
+        # Filter by category if provided in query params
+        category = self.request.query_params.get('category')
+        if category:
+            queryset = queryset.filter(category=category)
+            
+        return queryset.annotate(policy_count=Count('policies')).order_by('-policy_count')
 
 
 class PolicyViewSet(viewsets.ModelViewSet):

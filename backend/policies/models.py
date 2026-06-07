@@ -15,8 +15,19 @@ class InsuranceProduct(models.Model):
         ('accident', 'Personal Accident'),
     ]
     
+    CATEGORY_CHOICES = [
+        ('auto', 'Auto/Motor'),
+        ('home', 'Home/Property'),
+        ('health', 'Health'),
+        ('life', 'Life'),
+        ('travel', 'Travel'),
+        ('business', 'Business'),
+        ('disability', 'Disability'),
+    ]
+    
     product_name = models.CharField(max_length=255)
     product_type = models.CharField(max_length=50, choices=PRODUCT_TYPE_CHOICES)
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='auto')
     description = models.TextField()
     minimum_premium = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(0)])
     maximum_premium = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(0)])
@@ -28,6 +39,7 @@ class InsuranceProduct(models.Model):
         ordering = ['product_name']
         indexes = [
             models.Index(fields=['product_type', 'is_active']),
+            models.Index(fields=['category', 'is_active']),
         ]
     
     def __str__(self):

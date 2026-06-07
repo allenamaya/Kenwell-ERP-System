@@ -28,6 +28,8 @@ class Customer(models.Model):
     date_of_birth = models.DateField(null=True, blank=True)
     business_registration = models.CharField(max_length=100, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    kra_pin = models.CharField(max_length=50, blank=True)
+    kra_pin_document = models.FileField(upload_to='kra_pins/', null=True, blank=True)
     preferred_communication = models.CharField(
         max_length=20, 
         choices=[('email', 'Email'), ('sms', 'SMS'), ('phone', 'Phone')],

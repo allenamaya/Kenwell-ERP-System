@@ -243,7 +243,7 @@ export default function AgentsPage() {
             setIsLoading(false);
           });
         }}
-        agent={selectedAgent}
+        agent={selectedAgent as any}
       />
     </div>
   );

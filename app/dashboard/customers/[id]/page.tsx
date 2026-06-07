@@ -51,7 +51,7 @@ export default function CustomerDetailPage() {
       try {
         console.log('[v0] Fetching customer data for ID:', customerId);
         const custData = await getCustomer(parseInt(customerId));
-        setCustomer(custData);
+        setCustomer(custData as any);
 
         // Fetch related data
         try {

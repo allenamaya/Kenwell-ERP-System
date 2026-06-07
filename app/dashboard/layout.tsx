@@ -58,6 +58,7 @@ export default function DashboardLayout({
           { label: 'Billing', href: '/dashboard/billing', icon: '💰' },
         ]
       : []),
+    { label: 'My Profile', href: '/dashboard/profile', icon: '⚙️' },
   ];
 
   return (

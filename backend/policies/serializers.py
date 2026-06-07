@@ -3,14 +3,16 @@ from .models import InsuranceProduct, Policy, PolicyPayment
 
 
 class InsuranceProductSerializer(serializers.ModelSerializer):
+    policy_count = serializers.IntegerField(read_only=True, required=False)
+    
     class Meta:
         model = InsuranceProduct
         fields = [
-            'id', 'product_name', 'product_type', 'description',
-            'minimum_premium', 'maximum_premium', 'is_active',
+            'id', 'product_name', 'product_type', 'category', 'description',
+            'minimum_premium', 'maximum_premium', 'is_active', 'policy_count',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'policy_count', 'created_at', 'updated_at']
 
 
 class PolicyPaymentSerializer(serializers.ModelSerializer):
