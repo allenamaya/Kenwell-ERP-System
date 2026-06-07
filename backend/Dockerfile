@@ -34,7 +34,7 @@ EXPOSE 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/api/health/', timeout=5)" || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health/', timeout=5)" || exit 1
 
 # Run migrations and start gunicorn
 CMD ["sh", "-c", "python manage.py migrate && python manage.py populate_test_data && gunicorn kenwell_erp.wsgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 120"]

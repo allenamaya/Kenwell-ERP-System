@@ -13,6 +13,7 @@ from .serializers import (
 
 class InsuranceProductViewSet(viewsets.ModelViewSet):
     """Insurance product catalog"""
+    queryset = InsuranceProduct.objects.all()
     serializer_class = InsuranceProductSerializer
     permission_classes = [IsAuthenticated]
     filterset_fields = ['product_type', 'category', 'is_active']
