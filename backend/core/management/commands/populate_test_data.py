@@ -119,11 +119,10 @@ class Command(BaseCommand):
         
         self.stdout.write("\nCreating customer records...")
         
-        # Create customer profile
         customer, created = Customer.objects.get_or_create(
-            customer_id='CUST001',
+            user=customer_user,
             defaults={
-                'user': customer_user,
+                'customer_id': 'CUST001',
                 'customer_type': 'individual',
                 'phone': '+254722345678',
                 'email': 'customer@example.com',
