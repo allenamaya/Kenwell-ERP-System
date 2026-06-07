@@ -261,7 +261,7 @@ export default function CustomerDetailPage() {
                 </div>
                 <div className="text-right">
                   <p className="font-medium text-foreground">
-                    ${policy.premium_amount?.toFixed(2) || '0.00'}
+                    KSh {parseFloat(policy.premium_amount || "0").toLocaleString()}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     Expires:{' '}

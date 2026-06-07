@@ -183,7 +183,7 @@ export default function BillingPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-full transition-all group-hover:scale-110" />
           <p className="text-sm font-medium text-muted-foreground mb-1">Total Invoiced</p>
           <p className="text-3xl font-bold text-foreground">
-            ${totalInvoiced.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            KSh {totalInvoiced.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
           <div className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
             <span>All generated invoices</span>
@@ -194,7 +194,7 @@ export default function BillingPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-bl-full transition-all group-hover:scale-110" />
           <p className="text-sm font-medium text-muted-foreground mb-1">Total Received</p>
           <p className="text-3xl font-bold text-emerald-500">
-            ${totalPaid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            KSh {totalPaid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
           <div className="mt-2 text-xs text-emerald-500/80 flex items-center gap-1">
             <span>✓ Total cleared payments</span>
@@ -205,7 +205,7 @@ export default function BillingPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 rounded-bl-full transition-all group-hover:scale-110" />
           <p className="text-sm font-medium text-muted-foreground mb-1">Outstanding Balance</p>
           <p className="text-3xl font-bold text-orange-500">
-            ${outstandingAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            KSh {outstandingAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
           <div className="mt-2 text-xs text-orange-500/80 flex items-center gap-1">
             <span>⚠ Unpaid/Overdue balance</span>
@@ -285,7 +285,7 @@ export default function BillingPage() {
                       {new Date(inv.due_date).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                     </td>
                     <td className="p-4 text-sm font-bold text-foreground">
-                      ${inv.amount.toFixed(2)}
+                      KSh {inv.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </td>
                     <td className="p-4 text-sm">{getStatusBadge(inv.status)}</td>
                     <td className="p-4 text-sm text-right">
@@ -354,15 +354,15 @@ export default function BillingPage() {
                   <div className="space-y-1 text-sm bg-muted/30 p-3 rounded-lg border border-border">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Subtotal:</span>
-                      <span className="font-semibold text-foreground">${selectedInvoice.amount.toFixed(2)}</span>
+                      <span className="font-semibold text-foreground">KSh {selectedInvoice.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Amount Paid:</span>
-                      <span className="font-semibold text-emerald-500">${selectedInvoice.paid_amount.toFixed(2)}</span>
+                      <span className="font-semibold text-emerald-500">KSh {selectedInvoice.paid_amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                     </div>
                     <div className="border-t border-border pt-1.5 mt-1.5 flex justify-between font-bold text-foreground">
                       <span>Outstanding:</span>
-                      <span className="text-orange-500">${(selectedInvoice.amount - selectedInvoice.paid_amount).toFixed(2)}</span>
+                      <span className="text-orange-500">KSh {(selectedInvoice.amount - selectedInvoice.paid_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                     </div>
                   </div>
                 </div>
@@ -387,8 +387,8 @@ export default function BillingPage() {
                           <tr key={item.id} className="border-b border-border last:border-0">
                             <td className="p-3 text-foreground">{item.description}</td>
                             <td className="p-3 text-center text-foreground">{item.quantity}</td>
-                            <td className="p-3 text-right text-foreground">${item.unit_price.toFixed(2)}</td>
-                            <td className="p-3 text-right font-semibold text-foreground">${item.amount.toFixed(2)}</td>
+                            <td className="p-3 text-right text-foreground">KSh {item.unit_price.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                            <td className="p-3 text-right font-semibold text-foreground">KSh {item.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -411,7 +411,7 @@ export default function BillingPage() {
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="font-bold text-emerald-500">+${rec.amount.toFixed(2)}</p>
+                          <p className="font-bold text-emerald-500">+KSh {rec.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
                           <p className="text-xs text-muted-foreground mt-0.5">
                             {new Date(rec.receipt_date).toLocaleDateString()}
                           </p>

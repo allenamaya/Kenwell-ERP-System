@@ -190,7 +190,7 @@ export default function AgentDetailPage() {
           <Card className="p-6 border border-border">
             <p className="text-sm text-muted-foreground mb-1">Total Commission</p>
             <p className="font-heading text-2xl font-bold text-secondary">
-              ${agent.total_commission?.toFixed(2) || '0.00'}
+              KSh {agent.total_commission?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}
             </p>
           </Card>
 
@@ -235,7 +235,7 @@ export default function AgentDetailPage() {
             <div className="p-4 bg-background rounded">
               <p className="text-sm text-muted-foreground mb-1">Avg Policy Value</p>
               <p className="font-bold text-lg text-primary">
-                ${performance.average_policy_value?.toFixed(2) || '0.00'}
+                KSh {performance.average_policy_value?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}
               </p>
             </div>
           </div>
@@ -265,7 +265,7 @@ export default function AgentDetailPage() {
                       {new Date(commission.period_start).toLocaleDateString()} - {new Date(commission.period_end).toLocaleDateString()}
                     </td>
                     <td className="py-3 px-4 text-right font-bold text-primary">
-                      ${commission.amount?.toFixed(2) || '0.00'}
+                      KSh {commission.amount?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}
                     </td>
                     <td className="py-3 px-4 text-center">
                       <span className={`px-2 py-1 rounded text-xs font-medium ${

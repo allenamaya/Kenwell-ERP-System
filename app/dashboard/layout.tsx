@@ -53,6 +53,8 @@ export default function DashboardLayout({
       : []),
     ...(user?.role === 'customer'
       ? [
+          { label: 'My Policies', href: '/dashboard/policies', icon: '📋' },
+          { label: 'Browse Products', href: '/dashboard/policies/browse', icon: '🛒' },
           { label: 'Billing', href: '/dashboard/billing', icon: '💰' },
         ]
       : []),

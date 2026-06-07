@@ -5,6 +5,7 @@ import { getPolicies, getExpiringPolicies } from '@/lib/api';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/lib/auth-context';
 import Link from 'next/link';
 
 interface Policy {
@@ -34,6 +35,7 @@ interface Policy {
 }
 
 export default function PoliciesPage() {
+  const { user } = useAuth();
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -48,6 +50,11 @@ export default function PoliciesPage() {
 
         if (showExpiringOnly) {
           response = await getExpiringPolicies();
+          let list = Array.isArray(response) ? response : response.results || [];
+          if (user?.role === 'customer' && user.customer_id) {
+            list = list.filter((p: any) => p.customer?.id === user.customer_id || p.customer === user.customer_id);
+          }
+          setPolicies(list);
         } else {
           const params: Record<string, unknown> = {};
 
@@ -57,11 +64,13 @@ export default function PoliciesPage() {
           if (statusFilter !== 'all') {
             params.status = statusFilter;
           }
+          if (user?.role === 'customer' && user.customer_id) {
+            params.customer = user.customer_id;
+          }
 
           response = await getPolicies(params);
+          setPolicies(Array.isArray(response) ? response : response.results || []);
         }
-
-        setPolicies(Array.isArray(response) ? response : response.results || []);
       } catch (error) {
         console.error('[v0] Failed to fetch policies:', error);
         setPolicies([]);
@@ -70,9 +79,11 @@ export default function PoliciesPage() {
       }
     };
 
-    const debounceTimer = setTimeout(fetchPolicies, 300);
-    return () => clearTimeout(debounceTimer);
-  }, [searchTerm, statusFilter, showExpiringOnly]);
+    if (user) {
+      const debounceTimer = setTimeout(fetchPolicies, 300);
+      return () => clearTimeout(debounceTimer);
+    }
+  }, [searchTerm, statusFilter, showExpiringOnly, user]);
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
@@ -106,11 +117,19 @@ export default function PoliciesPage() {
             Manage insurance policies and coverage
           </p>
         </div>
-        <Link href="/dashboard/policies/new">
-          <Button className="bg-primary text-white hover:bg-primary/90">
-            + Create New Policy
-          </Button>
-        </Link>
+        {user?.role === 'customer' ? (
+          <Link href="/dashboard/policies/browse">
+            <Button className="bg-primary text-white hover:bg-primary/90">
+              + Browse Products
+            </Button>
+          </Link>
+        ) : (
+          <Link href="/dashboard/policies/new">
+            <Button className="bg-primary text-white hover:bg-primary/90">
+              + Create New Policy
+            </Button>
+          </Link>
+        )}
       </div>
 
       {/* Filters */}
@@ -217,8 +236,8 @@ export default function PoliciesPage() {
                       </div>
                       <div>
                         <p className="text-muted-foreground">Premium</p>
-                        <p className="font-medium text-primary">
-                          ${policy.premium_amount?.toFixed(2) || '0.00'}
+                        <p className="font-medium text-primary font-semibold">
+                          KSh {policy.premium_amount?.toLocaleString() || '0.00'}
                         </p>
                       </div>
                       <div>

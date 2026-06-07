@@ -184,7 +184,7 @@ export default function AgentsPage() {
                     <div>
                       <p className="text-muted-foreground">Commission</p>
                       <p className="font-medium text-primary">
-                        ${agent.total_commission?.toFixed(2) || '0.00'}
+                        KSh {agent.total_commission?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}
                       </p>
                     </div>
                   </div>

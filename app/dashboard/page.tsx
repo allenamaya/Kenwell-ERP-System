@@ -241,7 +241,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-primary">
-                          ${agent.total_commission?.toFixed(2) || '0.00'}
+                          KSh {agent.total_commission?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {agent.total_policies} policies

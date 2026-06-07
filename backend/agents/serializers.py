@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Agent, AgentCommission, AgentPerformance
 from core.serializers import UserSerializer
+from core.models import User, UserProfile
 
 
 class AgentPerformanceSerializer(serializers.ModelSerializer):
@@ -25,8 +26,14 @@ class AgentCommissionSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 
+class AgentUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name']
+
+
 class AgentSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    user = AgentUserSerializer()
     performance = AgentPerformanceSerializer(read_only=True)
     
     class Meta:
@@ -38,6 +45,58 @@ class AgentSerializer(serializers.ModelSerializer):
             'total_commission', 'website', 'performance', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'total_policies', 'total_commission', 'created_at', 'updated_at']
+
+    def create(self, validated_data):
+        user_data = validated_data.pop('user')
+        username = user_data.get('username')
+        email = user_data.get('email')
+        first_name = user_data.get('first_name', '')
+        last_name = user_data.get('last_name', '')
+        
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+            role='agent',
+            is_active_user=True
+        )
+        user.set_password('KenwellAgent2026!')
+        user.save()
+        
+        UserProfile.objects.get_or_create(user=user)
+        
+        agent = Agent.objects.create(user=user, **validated_data)
+        AgentPerformance.objects.get_or_create(agent=agent)
+        
+        return agent
+
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop('user', None)
+        if user_data:
+            user = instance.user
+            user.first_name = user_data.get('first_name', user.first_name)
+            user.last_name = user_data.get('last_name', user.last_name)
+            user.email = user_data.get('email', user.email)
+            user.save()
+            
+        status_val = validated_data.get('status', instance.status)
+        if status_val:
+            user = instance.user
+            if status_val == 'active':
+                user.is_active = True
+                user.is_active_user = True
+            else:  # inactive or suspended
+                user.is_active = False
+                user.is_active_user = False
+            user.save()
+            
+        return super().update(instance, validated_data)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['user'] = UserSerializer(instance.user).data
+        return data
 
 
 class AgentDetailSerializer(serializers.ModelSerializer):
@@ -55,3 +114,4 @@ class AgentDetailSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'total_policies', 'total_commission', 'created_at', 'updated_at']
+

@@ -92,10 +92,11 @@ function NewPolicyPageContent() {
           ).find((p) => p.id === parseInt(preselectedProductId));
           if (product) {
             setSelectedProduct(product);
+            const minPrem = parseFloat((product as any).minimum_premium) || 0;
             setFormData((prev) => ({
               ...prev,
-              premium_amount: product.base_premium.toString(),
-              coverage_amount: product.coverage_limit.toString(),
+              premium_amount: minPrem.toString(),
+              coverage_amount: (minPrem * 10).toString(),
             }));
           }
         }
@@ -123,10 +124,11 @@ function NewPolicyPageContent() {
       const product = products.find((p) => p.id === parseInt(value));
       if (product) {
         setSelectedProduct(product);
+        const minPrem = parseFloat((product as any).minimum_premium) || 0;
         setFormData((prev) => ({
           ...prev,
-          premium_amount: product.base_premium.toString(),
-          coverage_amount: product.coverage_limit.toString(),
+          premium_amount: minPrem.toString(),
+          coverage_amount: (minPrem * 10).toString(),
         }));
       }
     }
@@ -210,8 +212,7 @@ function NewPolicyPageContent() {
                   <option value="">Select a product...</option>
                   {products.map((product) => (
                     <option key={product.id} value={product.id}>
-                      {product.product_name} - $
-                      {product.base_premium?.toFixed(2) || "0.00"}
+                      {product.product_name} - KSh {parseFloat((product as any).minimum_premium || "0").toLocaleString()} - KSh {parseFloat((product as any).maximum_premium || "0").toLocaleString()}
                     </option>
                   ))}
                 </select>
@@ -348,15 +349,9 @@ function NewPolicyPageContent() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground mb-1">Base Premium</p>
+                    <p className="text-muted-foreground mb-1">Premium Range</p>
                     <p className="font-medium text-primary">
-                      ${selectedProduct.base_premium?.toFixed(2) || "0.00"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground mb-1">Max Coverage</p>
-                    <p className="font-medium text-foreground">
-                      ${selectedProduct.coverage_limit?.toLocaleString() || "0"}
+                      KSh {parseFloat((selectedProduct as any).minimum_premium || "0").toLocaleString()} - KSh {parseFloat((selectedProduct as any).maximum_premium || "0").toLocaleString()}
                     </p>
                   </div>
                 </div>

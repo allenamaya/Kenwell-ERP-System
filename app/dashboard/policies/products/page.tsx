@@ -166,30 +166,13 @@ export default function ProductsPage() {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Category:</span>
                     <span className="font-medium text-foreground capitalize">
-                      {product.category}
+                      {product.product_type}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Base Premium:</span>
-                    <span className="font-medium text-primary">
-                      ${product.base_premium?.toFixed(2) || "0.00"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Coverage Limit:
-                    </span>
-                    <span className="font-medium text-foreground">
-                      ${product.coverage_limit?.toLocaleString() || "0"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Coverage Range:
-                    </span>
-                    <span className="font-medium text-foreground">
-                      ${product.min_coverage?.toLocaleString() || "0"} - $
-                      {product.max_coverage?.toLocaleString() || "0"}
+                    <span className="text-muted-foreground">Premium Range:</span>
+                    <span className="font-medium text-primary font-semibold">
+                      KSh {parseFloat((product as any).minimum_premium || "0").toLocaleString()} - KSh {parseFloat((product as any).maximum_premium || "0").toLocaleString()}
                     </span>
                   </div>
                 </div>

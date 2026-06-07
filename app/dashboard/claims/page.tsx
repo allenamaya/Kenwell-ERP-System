@@ -5,6 +5,7 @@ import { getClaims, getPendingClaims } from '@/lib/api';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/lib/auth-context';
 import Link from 'next/link';
 
 interface Claim {
@@ -29,6 +30,7 @@ interface Claim {
 }
 
 export default function ClaimsPage() {
+  const { user } = useAuth();
   const [claims, setClaims] = useState<Claim[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -44,6 +46,11 @@ export default function ClaimsPage() {
 
         if (showPendingOnly) {
           response = await getPendingClaims();
+          let list = Array.isArray(response) ? response : response.results || [];
+          if (user?.role === 'customer' && user.customer_id) {
+            list = list.filter((c: any) => c.policy?.customer?.id === user.customer_id || c.policy?.customer === user.customer_id);
+          }
+          setClaims(list);
         } else {
           const params: Record<string, unknown> = {};
 
@@ -56,11 +63,13 @@ export default function ClaimsPage() {
           if (priorityFilter !== 'all') {
             params.priority = priorityFilter;
           }
+          if (user?.role === 'customer' && user.customer_id) {
+            params.customer = user.customer_id;
+          }
 
           response = await getClaims(params);
+          setClaims(Array.isArray(response) ? response : response.results || []);
         }
-
-        setClaims(Array.isArray(response) ? response : response.results || []);
       } catch (error) {
         console.error('[v0] Failed to fetch claims:', error);
         setClaims([]);
@@ -69,9 +78,11 @@ export default function ClaimsPage() {
       }
     };
 
-    const debounceTimer = setTimeout(fetchClaims, 300);
-    return () => clearTimeout(debounceTimer);
-  }, [searchTerm, statusFilter, priorityFilter, showPendingOnly]);
+    if (user) {
+      const debounceTimer = setTimeout(fetchClaims, 300);
+      return () => clearTimeout(debounceTimer);
+    }
+  }, [searchTerm, statusFilter, priorityFilter, showPendingOnly, user]);
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
@@ -107,11 +118,13 @@ export default function ClaimsPage() {
             Process and manage insurance claims
           </p>
         </div>
-        <Link href="/dashboard/claims/new">
-          <Button className="bg-primary text-white hover:bg-primary/90">
-            + Submit New Claim
-          </Button>
-        </Link>
+        {user?.role !== 'customer' && (
+          <Link href="/dashboard/claims/new">
+            <Button className="bg-primary text-white hover:bg-primary/90">
+              + Submit New Claim
+            </Button>
+          </Link>
+        )}
       </div>
 
       {/* Filters */}
@@ -221,14 +234,14 @@ export default function ClaimsPage() {
                       </div>
                       <div>
                         <p className="text-muted-foreground">Claimed</p>
-                        <p className="font-medium text-primary">
-                          ${claim.claimed_amount?.toFixed(2) || '0.00'}
+                        <p className="font-medium text-primary font-semibold">
+                          KSh {claim.claimed_amount?.toLocaleString() || '0.00'}
                         </p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Approved</p>
-                        <p className="font-medium text-secondary">
-                          ${claim.approved_amount?.toFixed(2) || '0.00'}
+                        <p className="font-medium text-secondary font-semibold">
+                          KSh {claim.approved_amount?.toLocaleString() || '0.00'}
                         </p>
                       </div>
                       <div>
