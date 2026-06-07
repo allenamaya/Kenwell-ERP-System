@@ -75,8 +75,11 @@ def get_or_create_user_from_google(google_user_info: dict):
             last_name=family_name,
             role='customer',  # Default role for Google OAuth users
             is_active=True,
-            is_email_verified=True,  # Google verifies emails
         )
+        
+        # Create user profile
+        from core.models import UserProfile
+        UserProfile.objects.create(user=user)
         
         # Set unusable password so they can only login via Google
         user.set_unusable_password()
