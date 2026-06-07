@@ -27,6 +27,10 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['first_name'] = user.first_name
         token['last_name'] = user.last_name
         
+        if user.role == 'customer' and hasattr(user, 'customer_profile') and user.customer_profile:
+            token['customer_id'] = user.customer_profile.id
+            token['customer_code'] = user.customer_profile.customer_id
+            
         return token
     
     def validate(self, attrs):
@@ -43,6 +47,10 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'last_name': user.last_name,
         }
         
+        if user.role == 'customer' and hasattr(user, 'customer_profile') and user.customer_profile:
+            data['user']['customer_id'] = user.customer_profile.id
+            data['user']['customer_code'] = user.customer_profile.customer_id
+            
         return data
 
 

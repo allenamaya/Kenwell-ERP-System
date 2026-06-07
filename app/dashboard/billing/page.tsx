@@ -65,7 +65,7 @@ export default function BillingPage() {
 
   // Redirect unauthorized users
   useEffect(() => {
-    if (!authLoading && (!user || !(user.role === 'admin' || user.role === 'operations' || user.role === 'finance'))) {
+    if (!authLoading && (!user || !(user.role === 'admin' || user.role === 'operations' || user.role === 'finance' || user.role === 'customer'))) {
       router.push('/dashboard');
     }
   }, [authLoading, user, router]);
@@ -74,8 +74,13 @@ export default function BillingPage() {
     const fetchInvoices = async () => {
       try {
         setLoading(true);
-        // Backend ViewSet uses standard pagination or direct list
-        const response: any = await apiClient.get('/api/invoices/');
+        // Fetch only customer invoices if the logged-in user is a customer
+        let url = '/api/invoices/';
+        if (user?.role === 'customer' && user.customer_id) {
+          url = `/api/invoices/?customer=${user.customer_id}`;
+        }
+
+        const response: any = await apiClient.get(url);
         const invoiceList = Array.isArray(response) ? response : response.results || [];
         // Map backend string decimals to floats safely
         const parsedInvoices = invoiceList.map((inv: any) => ({
@@ -91,7 +96,7 @@ export default function BillingPage() {
       }
     };
 
-    if (user && (user.role === 'admin' || user.role === 'operations' || user.role === 'finance')) {
+    if (user && (user.role === 'admin' || user.role === 'operations' || user.role === 'finance' || user.role === 'customer')) {
       fetchInvoices();
     }
   }, [user]);
@@ -213,7 +218,7 @@ export default function BillingPage() {
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="w-full md:w-1/3 relative">
             <Input
-              placeholder="Search by invoice number or customer ID..."
+              placeholder={user?.role === 'customer' ? "Search by invoice number..." : "Search by invoice number or customer ID..."}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-background/50 pl-10"
@@ -253,7 +258,9 @@ export default function BillingPage() {
               <thead>
                 <tr className="bg-muted/40 border-b border-border text-left">
                   <th className="p-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Invoice ID</th>
-                  <th className="p-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Customer ID</th>
+                  {user?.role !== 'customer' && (
+                    <th className="p-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Customer ID</th>
+                  )}
                   <th className="p-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Invoice Date</th>
                   <th className="p-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Due Date</th>
                   <th className="p-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Total Amount</th>
@@ -268,7 +275,9 @@ export default function BillingPage() {
                     className="border-b border-border hover:bg-accent/5 transition-colors duration-150"
                   >
                     <td className="p-4 text-sm font-semibold text-foreground">{inv.invoice_number}</td>
-                    <td className="p-4 text-sm text-foreground">{inv.customer_display || 'N/A'}</td>
+                    {user?.role !== 'customer' && (
+                      <td className="p-4 text-sm text-foreground">{inv.customer_display || 'N/A'}</td>
+                    )}
                     <td className="p-4 text-sm text-muted-foreground">
                       {new Date(inv.invoice_date).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                     </td>

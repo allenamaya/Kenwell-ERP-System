@@ -28,6 +28,9 @@ class UserSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         if instance.is_superuser or instance.is_staff:
             data['role'] = 'admin'
+        if instance.role == 'customer' and hasattr(instance, 'customer_profile') and instance.customer_profile:
+            data['customer_id'] = instance.customer_profile.id
+            data['customer_code'] = instance.customer_profile.customer_id
         return data
 
 
@@ -47,6 +50,9 @@ class UserDetailSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         if instance.is_superuser or instance.is_staff:
             data['role'] = 'admin'
+        if instance.role == 'customer' and hasattr(instance, 'customer_profile') and instance.customer_profile:
+            data['customer_id'] = instance.customer_profile.id
+            data['customer_code'] = instance.customer_profile.customer_id
         return data
 
 

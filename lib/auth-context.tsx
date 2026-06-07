@@ -16,6 +16,8 @@ export interface User {
   first_name: string;
   last_name: string;
   role: 'admin' | 'agent' | 'customer' | 'finance' | 'operations';
+  customer_id?: number;
+  customer_code?: string;
 }
 
 interface AuthContextType {

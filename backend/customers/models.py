@@ -98,3 +98,27 @@ class CustomerNote(models.Model):
     
     def __str__(self):
         return f"Note for {self.customer.customer_id}"
+
+
+# Signal to auto-create Customer profile when a customer user is created
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+import uuid
+
+@receiver(post_save, sender=User)
+def create_customer_profile(sender, instance, created, **kwargs):
+    if created and instance.role == 'customer':
+        # Generate a unique customer_id
+        cust_id = f"CUST-{uuid.uuid4().hex[:6].upper()}"
+        while Customer.objects.filter(customer_id=cust_id).exists():
+            cust_id = f"CUST-{uuid.uuid4().hex[:6].upper()}"
+            
+        Customer.objects.create(
+            user=instance,
+            customer_type='individual',
+            customer_id=cust_id,
+            phone=instance.phone or 'N/A',
+            email=instance.email,
+            identification_type='National ID',
+            identification_number='Pending',
+        )

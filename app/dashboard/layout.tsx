@@ -51,6 +51,11 @@ export default function DashboardLayout({
           { label: 'Reports', href: '/dashboard/reports', icon: '📊' },
         ]
       : []),
+    ...(user?.role === 'customer'
+      ? [
+          { label: 'Billing', href: '/dashboard/billing', icon: '💰' },
+        ]
+      : []),
   ];
 
   return (
