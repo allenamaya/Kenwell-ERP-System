@@ -64,6 +64,38 @@ class PolicySerializer(serializers.ModelSerializer):
             validated_data['coverage_limit'] = coverage_amount
         return super().update(instance, validated_data)
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.customer:
+            data['customer'] = {
+                'id': instance.customer.id,
+                'first_name': instance.customer.user.first_name if instance.customer.user else '',
+                'last_name': instance.customer.user.last_name if instance.customer.user else '',
+            }
+        else:
+            data['customer'] = None
+
+        if instance.agent:
+            data['agent'] = {
+                'id': instance.agent.id,
+                'user': {
+                    'first_name': instance.agent.user.first_name if instance.agent.user else '',
+                    'last_name': instance.agent.user.last_name if instance.agent.user else '',
+                }
+            }
+        else:
+            data['agent'] = None
+
+        if instance.product:
+            data['product'] = {
+                'id': instance.product.id,
+                'product_name': instance.product.product_name,
+            }
+        else:
+            data['product'] = None
+
+        return data
+
 
 class PolicyDetailSerializer(serializers.ModelSerializer):
     product = InsuranceProductSerializer(read_only=True)
@@ -78,3 +110,27 @@ class PolicyDetailSerializer(serializers.ModelSerializer):
             'renewal_reminder_sent', 'payments', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.customer:
+            data['customer'] = {
+                'id': instance.customer.id,
+                'first_name': instance.customer.user.first_name if instance.customer.user else '',
+                'last_name': instance.customer.user.last_name if instance.customer.user else '',
+            }
+        else:
+            data['customer'] = None
+
+        if instance.agent:
+            data['agent'] = {
+                'id': instance.agent.id,
+                'user': {
+                    'first_name': instance.agent.user.first_name if instance.agent.user else '',
+                    'last_name': instance.agent.user.last_name if instance.agent.user else '',
+                }
+            }
+        else:
+            data['agent'] = None
+
+        return data

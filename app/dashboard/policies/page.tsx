@@ -217,21 +217,19 @@ export default function PoliciesPage() {
                       <div>
                         <p className="text-muted-foreground">Customer</p>
                         <p className="font-medium text-foreground">
-                          {policy.customer.first_name}{' '}
-                          {policy.customer.last_name}
+                          {policy.customer ? `${policy.customer.first_name} ${policy.customer.last_name}` : 'N/A'}
                         </p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Product</p>
                         <p className="font-medium text-foreground">
-                          {policy.product.product_name}
+                          {policy.product?.product_name || 'N/A'}
                         </p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Agent</p>
                         <p className="font-medium text-foreground">
-                          {policy.agent.user.first_name}{' '}
-                          {policy.agent.user.last_name}
+                          {policy.agent ? `${policy.agent.user?.first_name || ''} ${policy.agent.user?.last_name || ''}` : <span className="text-muted-foreground italic">Direct</span>}
                         </p>
                       </div>
                       <div>
