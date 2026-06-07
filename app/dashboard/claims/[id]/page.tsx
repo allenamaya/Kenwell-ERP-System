@@ -37,7 +37,7 @@ export default function ClaimDetailPage() {
   useEffect(() => {
     const fetchClaim = async () => {
       try {
-        const response: any = await apiClient.get(`/claims/${id}/`);
+        const response: any = await apiClient.get(`/api/claims/${id}/`);
         setClaim(response);
       } catch (error) {
         console.error('Failed to fetch claim:', error);

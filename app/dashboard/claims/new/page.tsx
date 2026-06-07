@@ -41,7 +41,7 @@ export default function NewClaimPage() {
     setLoading(true);
 
     try {
-      await apiClient.post("/claims/", formData);
+      await apiClient.post("/api/claims/", formData);
       router.push("/dashboard/claims");
     } catch (error) {
       console.error("Failed to create claim:", error);
