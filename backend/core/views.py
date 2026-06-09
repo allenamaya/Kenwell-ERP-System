@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -36,8 +36,18 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
         
-        # Add user details to response
         user = self.user
+        
+        # Block login if user is not verified
+        if not (user.is_superuser or user.is_staff):
+            try:
+                profile = user.profile
+                if not profile.is_verified:
+                    raise serializers.ValidationError({'error': 'Email is not verified'})
+            except UserProfile.DoesNotExist:
+                raise serializers.ValidationError({'error': 'User profile not found'})
+        
+        # Add user details to response
         data['user'] = {
             'id': user.id,
             'username': user.username,
@@ -94,7 +104,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return UserSerializer
     
     def get_permissions(self):
-        if self.action == 'register':
+        if self.action in ['register', 'verify_otp', 'resend_otp']:
             permission_classes = [AllowAny]
         else:
             permission_classes = [IsAuthenticated]
@@ -107,13 +117,20 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         
-        # Generate tokens
-        tokens = CustomTokenObtainPairSerializer.get_token(user)
+        # Generate OTP
+        from .models import OTPVerification
+        from .emails import send_otp_email
+        otp = OTPVerification.generate_otp(user)
         
+        # Send OTP email
+        try:
+            send_otp_email(user, otp.otp_code)
+        except Exception as e:
+            print(f"[Register] Error sending email: {e}")
+            
         return Response({
-            'user': UserDetailSerializer(user).data,
-            'access': str(tokens.access_token),
-            'refresh': str(tokens),
+            'message': 'Verification OTP sent.',
+            'email': user.email
         }, status=status.HTTP_201_CREATED)
     
     @action(detail=False, methods=['get', 'patch', 'delete'])
@@ -176,6 +193,114 @@ class UserViewSet(viewsets.ModelViewSet):
         users = User.objects.filter(role=role)
         serializer = self.get_serializer(users, many=True)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['post'], url_path='verify-otp', permission_classes=[AllowAny])
+    def verify_otp(self, request):
+        """Verify OTP for email registration"""
+        email = request.data.get('email')
+        otp_code = request.data.get('otp_code')
+        
+        if not email or not otp_code:
+            return Response(
+                {'error': 'Email and OTP code are required.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response(
+                {'error': 'User not found.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+            
+        # Check if already verified
+        if hasattr(user, 'profile') and user.profile.is_verified:
+            from rest_framework_simplejwt.tokens import RefreshToken
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'message': 'Account is already verified.',
+                'user': UserDetailSerializer(user).data,
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+            }, status=status.HTTP_200_OK)
+            
+        # Find active verification
+        from django.utils import timezone
+        from .models import OTPVerification
+        otp_verification = OTPVerification.objects.filter(
+            user=user,
+            otp_code=otp_code,
+            is_verified=False,
+            expires_at__gt=timezone.now()
+        ).first()
+        
+        if not otp_verification:
+            return Response(
+                {'error': 'Invalid or expired OTP code.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Mark OTP as verified
+        otp_verification.is_verified = True
+        otp_verification.save()
+        
+        # Mark user profile as verified
+        profile = user.profile
+        profile.is_verified = True
+        profile.verification_date = timezone.now()
+        profile.save()
+        
+        # Log in user and generate JWT tokens
+        from rest_framework_simplejwt.tokens import RefreshToken
+        refresh = RefreshToken.for_user(user)
+        
+        return Response({
+            'message': 'Email verified successfully.',
+            'user': UserDetailSerializer(user).data,
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+        }, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], url_path='resend-otp', permission_classes=[AllowAny])
+    def resend_otp(self, request):
+        """Resend email verification OTP"""
+        email = request.data.get('email')
+        
+        if not email:
+            return Response(
+                {'error': 'Email is required.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response(
+                {'error': 'User not found.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+            
+        if hasattr(user, 'profile') and user.profile.is_verified:
+            return Response(
+                {'error': 'Email is already verified.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Generate and send new OTP
+        from .models import OTPVerification
+        from .emails import send_otp_email
+        otp = OTPVerification.generate_otp(user)
+        
+        try:
+            send_otp_email(user, otp.otp_code)
+        except Exception as e:
+            print(f"[Resend OTP] Error sending email: {e}")
+            
+        return Response({
+            'message': 'Verification OTP resent successfully.',
+            'email': user.email
+        }, status=status.HTTP_200_OK)
 
 
 class UserProfileViewSet(viewsets.ModelViewSet):

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block subject %}{{ subject }}{% endblock %}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100% !important;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            background-color: #F7F7F7;
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #1A1D1A;
+        }
+        
+        table {
+            border-spacing: 0;
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+        
+        td {
+            padding: 0;
+        }
+        
+        img {
+            border: 0;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #FFFFFF;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(22, 29, 20, 0.04);
+            border: 1px solid #EAEAEA;
+        }
+        
+        .email-header {
+            background-color: #161D14;
+            padding: 32px;
+            text-align: center;
+        }
+        
+        .email-body {
+            padding: 40px 32px;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #2D3748;
+        }
+        
+        .email-footer {
+            background-color: #F7F7F7;
+            padding: 24px 32px;
+            text-align: center;
+            font-size: 13px;
+            color: #718096;
+            border-top: 1px solid #EAEAEA;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: #2EE556;
+            color: #161D14 !important;
+            text-decoration: none;
+            padding: 14px 28px;
+            font-weight: 600;
+            font-size: 15px;
+            border-radius: 8px;
+            margin: 24px 0;
+            text-align: center;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(46, 229, 86, 0.2);
+        }
+        
+        .btn:hover {
+            background-color: #7BD165;
+        }
+        
+        h1, h2, h3 {
+            color: #161D14;
+            margin-top: 0;
+            font-weight: 600;
+        }
+        
+        h1 {
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+        
+        p {
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+        
+        .brand-motto {
+            color: #8DDDD8;
+            font-size: 12px;
+            margin-top: 8px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F7F7F7; padding: 20px 0;">
+        <tr>
+            <td align="center">
+                <table class="email-container" width="600" cellpadding="0" cellspacing="0" border="0">
+                    <!-- HEADER -->
+                    <tr>
+                        <td class="email-header">
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                    <td align="center">
+                                        <img src="cid:logo_png" alt="Kenwell" height="42" style="height: 42px; display: block;" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center" class="brand-motto" style="padding-top: 8px;">
+                                        Enterprising Trust
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- BODY -->
+                    <tr>
+                        <td class="email-body">
+                            {% block content %}{% endblock %}
+                        </td>
+                    </tr>
+                    
+                    <!-- FOOTER -->
+                    <tr>
+                        <td class="email-footer">
+                            <p style="margin-bottom: 8px;">&copy; {{ current_year }} Kenwell Insurance. All rights reserved.</p>
+                            <p style="margin-bottom: 0; font-size: 11px;">
+                                Kenwell ERP System &bull; 100 Kenwell Plaza, Nairobi, Kenya<br>
+                                This is an automated transactional message. If you did not request this, please contact support.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

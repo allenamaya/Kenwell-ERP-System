@@ -1,0 +1,23 @@
+{% extends "emails/base_email.html" %}
+
+{% block subject %}Verify your Kenwell Account{% endblock %}
+
+{% block content %}
+<h1 style="color: #161D14; font-size: 24px; margin-bottom: 16px; font-weight: 700;">Account Verification</h1>
+<p>Hello {{ name }},</p>
+<p>Thank you for signing up for Kenwell Insurance ERP. To complete your registration and activate your account, please verify your email address by entering the 6-digit One-Time Password (OTP) below:</p>
+
+<div style="background-color: #F7F7F7; border: 2px dashed #7BD165; border-radius: 12px; padding: 24px; text-align: center; margin: 32px 0;">
+    <span style="font-family: monospace; font-size: 36px; font-weight: 700; letter-spacing: 8px; color: #161D14; display: block;">{{ otp }}</span>
+</div>
+
+<p style="font-size: 14px; color: #718096; margin-bottom: 24px;">
+    <strong>Please note:</strong> This OTP is valid for <strong>10 minutes</strong>. If the code expires, you can request a new one from the verification screen.
+</p>
+
+<hr style="border: 0; border-top: 1px solid #EAEAEA; margin: 24px 0;">
+
+<p style="font-size: 13px; color: #718096;">
+    If you did not attempt to create a Kenwell account, please ignore this email. Your security is our priority.
+</p>
+{% endblock %}

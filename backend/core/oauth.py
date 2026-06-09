@@ -51,6 +51,14 @@ def get_or_create_user_from_google(google_user_info: dict):
         user = User.objects.filter(email=email).first()
         
         if user:
+            # Ensure profile is verified since they successfully authenticated via Google
+            if hasattr(user, 'profile'):
+                profile = user.profile
+                if not profile.is_verified:
+                    from django.utils import timezone
+                    profile.is_verified = True
+                    profile.verification_date = timezone.now()
+                    profile.save()
             return user
         
         # Create new user from Google info
@@ -79,7 +87,12 @@ def get_or_create_user_from_google(google_user_info: dict):
         
         # Create user profile
         from core.models import UserProfile
-        UserProfile.objects.create(user=user)
+        from django.utils import timezone
+        UserProfile.objects.create(
+            user=user,
+            is_verified=True,
+            verification_date=timezone.now()
+        )
         
         # Set unusable password so they can only login via Google
         user.set_unusable_password()

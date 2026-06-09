@@ -1,8 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
+from datetime import timedelta
 from PIL import Image
 import os
+import random
+
 
 class User(AbstractUser):
     """Extended user model with role-based access"""
@@ -97,3 +101,40 @@ class AuditLog(models.Model):
     
     def __str__(self):
         return f"{self.action} - {self.model_name} by {self.user}"
+
+
+class OTPVerification(models.Model):
+    """Stores one-time passwords for email verification"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='otp_verifications')
+    otp_code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_verified = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', 'otp_code']),
+            models.Index(fields=['expires_at']),
+        ]
+
+    def __str__(self):
+        return f"OTP for {self.user.email} (Verified: {self.is_verified})"
+
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    @classmethod
+    def generate_otp(cls, user):
+        # Generate 6-digit random code
+        code = f"{random.randint(100000, 999999)}"
+        # Expire any previous unverified OTPs for this user
+        cls.objects.filter(user=user, is_verified=False).update(expires_at=timezone.now())
+        # Create new OTP
+        expires = timezone.now() + timedelta(minutes=10)
+        return cls.objects.create(
+            user=user,
+            otp_code=code,
+            expires_at=expires
+        )
+

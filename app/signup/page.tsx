@@ -143,18 +143,12 @@ export default function SignupPage() {
       }
 
       const userData = await registerResponse.json();
-      console.log('[v0] Signup: Account created successfully');
+      console.log('[v0] Signup: Account created successfully, redirecting to OTP verification');
 
-      // Authenticate the user and update context
-      try {
-        await login(formData.email, formData.password);
-        setSuccess('Account created successfully! Redirecting...');
-        setTimeout(() => router.push('/dashboard'), 1500);
-      } catch (loginErr) {
-        console.error('[v0] Signup: Auto-login failed:', loginErr);
-        setSuccess('Account created! Please log in with your credentials.');
-        setTimeout(() => router.push('/login'), 2000);
-      }
+      setSuccess('Account created! A verification code has been sent to your email.');
+      setTimeout(() => {
+        router.push(`/verify-otp?email=${encodeURIComponent(formData.email)}`);
+      }, 1500);
     } catch (error) {
       console.error('[v0] Signup: Error:', error);
       setError(error instanceof Error ? error.message : 'An error occurred during signup');
