@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:backend": "cd backend && python manage.py runserver 0.0.0.0:8000",
+    "dev:backend": "cd backend && ./venv/bin/python manage.py runserver 0.0.0.0:8000",
     "dev:frontend": "next dev -p 3000",
     "dev:all": "concurrently \"pnpm dev:backend\" \"pnpm dev:frontend\" --names \"Backend,Frontend\" --prefix \"[{name}]\" --kill-others-on-fail",
     "build": "next build",

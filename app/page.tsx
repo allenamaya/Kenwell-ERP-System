@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 export default function Page() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -10,13 +10,52 @@ export default function Page() {
   const [hasStarted, setHasStarted] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
 
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(0.5);
+  const [played, setPlayed] = useState(false);
+
+  // Load sound preferences from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedMuted = localStorage.getItem('app_muted') === 'true';
+      const savedVolume = localStorage.getItem('app_volume');
+      if (savedMuted) setIsMuted(true);
+      if (savedVolume !== null) setVolume(parseFloat(savedVolume));
+    }
+  }, []);
+
+  // Sync volume changes to the playing audio element
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume;
+    }
+  }, [isMuted, volume]);
+
+  const toggleMute = () => {
+    const nextMuted = !isMuted;
+    setIsMuted(nextMuted);
+    localStorage.setItem('app_muted', String(nextMuted));
+  };
+
+  const handleVolumeChange = (newVal: number) => {
+    setVolume(newVal);
+    localStorage.setItem('app_volume', String(newVal));
+  };
+
   // FM synthesized premium chime with delay and reverb simulation
-  const playSynthesizedChime = () => {
+  const playSynthesizedChime = (): boolean => {
     try {
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContext) return;
+      if (!AudioContext) return false;
       const ctx = new AudioContext();
+      if (ctx.state === 'suspended') {
+        console.warn('[v0] AudioContext is suspended. Autoplay blocked.');
+        return false;
+      }
       const now = ctx.currentTime;
+      
+      const currentVolume = isMuted ? 0 : volume;
       
       // Warm, supportive base drone (C3)
       const baseOsc = ctx.createOscillator();
@@ -24,7 +63,7 @@ export default function Page() {
       baseOsc.type = 'triangle';
       baseOsc.frequency.setValueAtTime(130.81, now); // C3
       baseGain.gain.setValueAtTime(0, now);
-      baseGain.gain.linearRampToValueAtTime(0.12, now + 0.15);
+      baseGain.gain.linearRampToValueAtTime(0.12 * currentVolume, now + 0.15);
       baseGain.gain.exponentialRampToValueAtTime(0.0001, now + 2.5);
       
       const filter = ctx.createBiquadFilter();
@@ -48,7 +87,7 @@ export default function Page() {
         
         // Volume envelope: fast attack, long decay
         gainNode.gain.setValueAtTime(0, now + idx * 0.12);
-        gainNode.gain.linearRampToValueAtTime(0.08, now + idx * 0.12 + 0.04);
+        gainNode.gain.linearRampToValueAtTime(0.08 * currentVolume, now + idx * 0.12 + 0.04);
         gainNode.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.12 + 2.0);
         
         // Delay/echo simulation
@@ -67,41 +106,60 @@ export default function Page() {
         osc.start(now + idx * 0.12);
         osc.stop(now + idx * 0.12 + 2.5);
       });
+      return true;
     } catch (e) {
       console.warn('AudioContext failed to initialize:', e);
+      return false;
     }
   };
 
-  const playChime = () => {
-    // Attempt to load and play static audio file if provided
-    const audio = new Audio('/chime.wav');
-    audio.play()
-      .then(() => {
-        console.log('[v0] Chime played from static audio file /chime.wav');
-      })
-      .catch((err) => {
-        console.warn('Failed to play /chime.wav, trying /chime.mp3', err);
-        const audioMp3 = new Audio('/chime.mp3');
-        audioMp3.play()
-          .then(() => {
-            console.log('[v0] Chime played from static audio file /chime.mp3');
-          })
-          .catch((err2) => {
-            // Fallback to beautiful Web Audio API chime on failure or if file doesn't exist
-            console.log('[v0] Fallback to synthesized premium chime', err2);
-            playSynthesizedChime();
-          });
-      });
+  const playChime = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      // Attempt to load and play static audio file if provided
+      const audio = new Audio('/chime.wav');
+      audio.volume = isMuted ? 0 : volume;
+      audioRef.current = audio;
+
+      audio.play()
+        .then(() => {
+          console.log('[v0] Chime played from static audio file /chime.wav');
+          resolve(true);
+        })
+        .catch((err) => {
+          console.warn('Failed to play /chime.wav, trying /chime.mp3', err);
+          const audioMp3 = new Audio('/chime.mp3');
+          audioMp3.volume = isMuted ? 0 : volume;
+          audioRef.current = audioMp3;
+          
+          audioMp3.play()
+            .then(() => {
+              console.log('[v0] Chime played from static audio file /chime.mp3');
+              resolve(true);
+            })
+            .catch((err2) => {
+              // Fallback to beautiful Web Audio API chime on failure or if file doesn't exist
+              console.log('[v0] Fallback to synthesized premium chime', err2);
+              const synthSuccess = playSynthesizedChime();
+              resolve(synthSuccess);
+            });
+        });
+    });
   };
 
   useEffect(() => {
     // Autoplay attempt
-    let played = false;
+    let autoPlayAttempted = false;
     
     const tryPlay = () => {
-      if (!played) {
-        playChime();
-        played = true;
+      if (!played && !autoPlayAttempted) {
+        autoPlayAttempted = true;
+        playChime().then((success) => {
+          if (success) {
+            setPlayed(true);
+          } else {
+            autoPlayAttempted = false;
+          }
+        });
       }
     };
 
@@ -110,7 +168,13 @@ export default function Page() {
     }, 400);
 
     const handleFirstInteraction = () => {
-      tryPlay();
+      if (!played) {
+        playChime().then((success) => {
+          if (success) {
+            setPlayed(true);
+          }
+        });
+      }
       window.removeEventListener('click', handleFirstInteraction);
       window.removeEventListener('keydown', handleFirstInteraction);
     };
@@ -123,7 +187,7 @@ export default function Page() {
       window.removeEventListener('click', handleFirstInteraction);
       window.removeEventListener('keydown', handleFirstInteraction);
     };
-  }, []);
+  }, [played, isMuted, volume]);
 
   useEffect(() => {
     if (!isLoading) {
@@ -229,6 +293,38 @@ export default function Page() {
         <p className="animate-text font-heading text-xs tracking-[0.35em] text-emerald-400 font-semibold uppercase">
           Kenwell ERP System
         </p>
+      </div>
+
+      {/* Sound Controller */}
+      <div className="absolute top-4 right-4 z-50 flex items-center gap-3 p-2.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md shadow-lg transition-all hover:bg-white/10">
+        <button
+          onClick={toggleMute}
+          className="text-white hover:text-emerald-400 transition-colors focus:outline-none cursor-pointer"
+          aria-label={isMuted ? "Unmute" : "Mute"}
+        >
+          {isMuted || volume === 0 ? (
+            <span className="text-sm">🔇</span>
+          ) : volume < 0.4 ? (
+            <span className="text-sm">🔉</span>
+          ) : (
+            <span className="text-sm">🔊</span>
+          )}
+        </button>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.05"
+          value={isMuted ? 0 : volume}
+          onChange={(e) => {
+            if (isMuted) setIsMuted(false);
+            handleVolumeChange(parseFloat(e.target.value));
+          }}
+          className="w-20 h-1 rounded-lg appearance-none cursor-pointer bg-zinc-700 accent-emerald-500 focus:outline-none"
+          style={{
+            background: `linear-gradient(to right, #10b981 0%, #10b981 ${(isMuted ? 0 : volume) * 100}%, #3f3f46 ${(isMuted ? 0 : volume) * 100}%, #3f3f46 100%)`
+          }}
+        />
       </div>
 
       {/* Bottom Status / Footer */}

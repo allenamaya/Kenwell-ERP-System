@@ -13,7 +13,7 @@ import { useAuth } from '@/lib/auth-context';
 
 export default function SignupPage() {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -112,6 +112,7 @@ export default function SignupPage() {
           first_name: formData.first_name,
           last_name: formData.last_name,
           password: formData.password,
+          password_confirm: formData.password,
           phone: formData.phone,
           role: 'customer',
         }),
@@ -137,33 +138,16 @@ export default function SignupPage() {
       const userData = await registerResponse.json();
       console.log('[v0] Signup: Account created successfully');
 
-      // Get JWT token
-      const loginResponse = await fetch(`${Config.api.baseUrl}/api/auth/login/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: formData.email,
-          password: formData.password,
-        }),
-      });
-
-      if (!loginResponse.ok) {
+      // Authenticate the user and update context
+      try {
+        await login(formData.email, formData.password);
+        setSuccess('Account created successfully! Redirecting...');
+        setTimeout(() => router.push('/dashboard'), 1500);
+      } catch (loginErr) {
+        console.error('[v0] Signup: Auto-login failed:', loginErr);
         setSuccess('Account created! Please log in with your credentials.');
         setTimeout(() => router.push('/login'), 2000);
-        return;
       }
-
-      const tokenData = await loginResponse.json();
-      console.log('[v0] Signup: Login successful');
-
-      // Store tokens
-      localStorage.setItem('access_token', tokenData.access);
-      localStorage.setItem('refresh_token', tokenData.refresh);
-
-      setSuccess('Account created successfully! Redirecting...');
-      setTimeout(() => router.push('/dashboard'), 1500);
     } catch (error) {
       console.error('[v0] Signup: Error:', error);
       setError(error instanceof Error ? error.message : 'An error occurred during signup');
