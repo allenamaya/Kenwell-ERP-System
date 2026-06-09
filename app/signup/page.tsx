@@ -18,6 +18,15 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [mounted, setMounted] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: '',
+  });
 
   // Check if splash screen has been seen in this session and handle auth redirect
   useEffect(() => {
@@ -42,15 +51,6 @@ export default function SignupPage() {
   if (!mounted || isAuthenticated) {
     return <div className="min-h-screen bg-background" />;
   }
-  
-  const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: '',
-  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
