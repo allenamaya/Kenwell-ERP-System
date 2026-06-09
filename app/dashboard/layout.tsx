@@ -80,7 +80,8 @@ export default function DashboardLayout({
       >
         {/* Logo with Close button */}
         <div className="h-16 flex items-center justify-between border-b border-border px-4">
-          <img src="/logo.svg" alt="Logo" className="h-10" />
+          <img src="/logo-light-mode.png" alt="Logo" className="h-10 dark:hidden" />
+          <img src="/logo-dark-mode.png" alt="Logo" className="h-10 hidden dark:block" />
           <button
             onClick={() => setMobileSidebarOpen(false)}
             className="p-2 text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent rounded-md text-sm font-bold transition-colors"
@@ -114,7 +115,8 @@ export default function DashboardLayout({
       >
         {/* Logo */}
         <div className="h-16 flex items-center justify-center border-b border-border px-4">
-          <img src="/logo.svg" alt="Logo" className="h-10" />
+          <img src="/logo-light-mode.png" alt="Logo" className="h-10 dark:hidden" />
+          <img src="/logo-dark-mode.png" alt="Logo" className="h-10 hidden dark:block" />
         </div>
 
         {/* Navigation */}

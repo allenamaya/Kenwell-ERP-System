@@ -156,6 +156,16 @@ export default function SignupPage() {
       <Card className="w-full max-w-md border border-border">
         {/* Header */}
         <div className="p-6 border-b border-border text-center">
+          <img
+            src="/logo-light-mode.png"
+            alt="Kenwell Logo"
+            className="h-10 mx-auto mb-3 dark:hidden"
+          />
+          <img
+            src="/logo-dark-mode.png"
+            alt="Kenwell Logo"
+            className="h-10 mx-auto mb-3 hidden dark:block"
+          />
           <h1 className="font-heading text-2xl font-bold text-foreground">
             Create Account
           </h1>
