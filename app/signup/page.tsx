@@ -101,7 +101,7 @@ export default function SignupPage() {
       console.log('[v0] Signup: Creating new customer account');
 
       // Create user account via API
-      const registerResponse = await fetch(`${Config.api.baseUrl}/users/register/`, {
+      const registerResponse = await fetch(`${Config.api.baseUrl}/api/users/register/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -138,7 +138,7 @@ export default function SignupPage() {
       console.log('[v0] Signup: Account created successfully');
 
       // Get JWT token
-      const loginResponse = await fetch(`${Config.api.baseUrl}/auth/login/`, {
+      const loginResponse = await fetch(`${Config.api.baseUrl}/api/auth/login/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
