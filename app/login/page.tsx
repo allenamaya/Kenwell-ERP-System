@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { GoogleAuthButton } from '@/components/google-auth-button';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,6 +17,13 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Check if splash screen has been seen in this session
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !sessionStorage.getItem('hasSeenSplash')) {
+      router.push('/?redirect=/login');
+    }
+  }, [router]);
 
   // Redirect if already authenticated
   if (isAuthenticated) {
@@ -41,7 +49,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-background/80">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-background/80 relative">
+      <div className="absolute top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
       <Card className="w-full max-w-md shadow-lg">
         <div className="p-8">
           {/* Logo */}

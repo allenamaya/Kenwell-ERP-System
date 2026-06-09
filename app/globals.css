@@ -47,37 +47,37 @@
 }
 
 .dark {
-  --background: oklch(0.13 0 0);
+  --background: #161D14;
   --foreground: oklch(0.95 0 0);
-  --card: oklch(0.17 0 0);
+  --card: #1e281b;
   --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.13 0 0);
+  --popover: #161D14;
   --popover-foreground: oklch(0.95 0 0);
   --primary: 46 238 86; /* #2EE556 - Kenwell Primary Green */
-  --primary-foreground: oklch(0.13 0 0);
+  --primary-foreground: #161D14;
   --secondary: 123 209 101; /* #7BD165 - Kenwell Secondary Green */
   --secondary-foreground: oklch(0.95 0 0);
-  --muted: oklch(0.27 0 0);
+  --muted: #212c1e;
   --muted-foreground: oklch(0.71 0 0);
   --accent: 141 221 216; /* #8DDDD8 - Kenwell Teal */
-  --accent-foreground: oklch(0.13 0 0);
+  --accent-foreground: #161D14;
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.27 0 0);
-  --input: oklch(0.27 0 0);
+  --border: #283724;
+  --input: #283724;
   --ring: rgb(46 238 86 / 0.3);
   --chart-1: 46 238 86;
   --chart-2: 123 209 101;
   --chart-3: 141 221 216;
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.17 0 0);
+  --sidebar: #11170f;
   --sidebar-foreground: oklch(0.95 0 0);
   --sidebar-primary: 46 238 86;
   --sidebar-primary-foreground: oklch(0.95 0 0);
   --sidebar-accent: 141 221 216;
-  --sidebar-accent-foreground: oklch(0.13 0 0);
-  --sidebar-border: oklch(0.27 0 0);
+  --sidebar-accent-foreground: #161D14;
+  --sidebar-border: #283724;
   --sidebar-ring: rgb(46 238 86 / 0.3);
 }
 

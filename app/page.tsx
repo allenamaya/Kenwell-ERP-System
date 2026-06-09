@@ -134,10 +134,13 @@ export default function Page() {
 
       // Perform routing redirect at 3.7 seconds
       const redirectTimer = setTimeout(() => {
-        if (isAuthenticated) {
-          router.push('/dashboard');
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('hasSeenSplash', 'true');
+          const params = new URLSearchParams(window.location.search);
+          const redirectPath = params.get('redirect') || (isAuthenticated ? '/dashboard' : '/signup');
+          router.push(redirectPath);
         } else {
-          router.push('/signup');
+          router.push(isAuthenticated ? '/dashboard' : '/signup');
         }
       }, 3700);
       

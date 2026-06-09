@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function DashboardLayout({
   children,
@@ -162,6 +163,7 @@ export default function DashboardLayout({
           </div>
 
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             <div className="text-sm">
               <p className="font-medium text-foreground">{user?.first_name} {user?.last_name}</p>
               <p className="text-muted-foreground text-xs capitalize">

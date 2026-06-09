@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -8,12 +8,20 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { GoogleAuthButton } from '@/components/google-auth-button';
 import { Config } from '@/lib/config';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function SignupPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  // Check if splash screen has been seen in this session
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !sessionStorage.getItem('hasSeenSplash')) {
+      router.push('/?redirect=/signup');
+    }
+  }, [router]);
   
   const [formData, setFormData] = useState({
     first_name: '',
@@ -152,7 +160,10 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative">
+      <div className="absolute top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
       <Card className="w-full max-w-md border border-border">
         {/* Header */}
         <div className="p-6 border-b border-border text-center">
