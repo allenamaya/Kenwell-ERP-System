@@ -19,24 +19,20 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [mounted, setMounted] = useState(false);
 
-  // Check if splash screen has been seen in this session
+  // Check if splash screen has been seen in this session and handle auth redirect
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      if (!sessionStorage.getItem('hasSeenSplash')) {
+      if (isAuthenticated) {
+        router.push('/dashboard');
+      } else if (!sessionStorage.getItem('hasSeenSplash')) {
         router.push('/?redirect=/login');
       } else {
         setMounted(true);
       }
     }
-  }, [router]);
+  }, [router, isAuthenticated]);
 
-  // Redirect if already authenticated
-  if (isAuthenticated) {
-    router.push('/dashboard');
-    return null;
-  }
-
-  if (!mounted) {
+  if (!mounted || isAuthenticated) {
     return <div className="min-h-screen bg-background" />;
   }
 

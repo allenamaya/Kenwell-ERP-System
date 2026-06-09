@@ -9,26 +9,30 @@ import { Card } from '@/components/ui/card';
 import { GoogleAuthButton } from '@/components/google-auth-button';
 import { Config } from '@/lib/config';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { useAuth } from '@/lib/auth-context';
 
 export default function SignupPage() {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [mounted, setMounted] = useState(false);
 
-  // Check if splash screen has been seen in this session
+  // Check if splash screen has been seen in this session and handle auth redirect
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      if (!sessionStorage.getItem('hasSeenSplash')) {
+      if (isAuthenticated) {
+        router.push('/dashboard');
+      } else if (!sessionStorage.getItem('hasSeenSplash')) {
         router.push('/?redirect=/signup');
       } else {
         setMounted(true);
       }
     }
-  }, [router]);
+  }, [router, isAuthenticated]);
 
-  if (!mounted) {
+  if (!mounted || isAuthenticated) {
     return <div className="min-h-screen bg-background" />;
   }
   
