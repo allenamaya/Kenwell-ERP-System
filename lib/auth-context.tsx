@@ -27,6 +27,8 @@ interface AuthContextType {
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
+  hasSeenSplash: boolean;
+  setHasSeenSplash: (val: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -34,11 +36,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasSeenSplash, setHasSeenSplash] = useState(false);
 
   // Initialize auth state on mount
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem('access_token');
+      let token: string | null = null;
+      try {
+        token = localStorage.getItem('access_token');
+      } catch (e) {
+        console.warn('localStorage read blocked in AuthProvider:', e);
+      }
+      
       if (token) {
         apiClient.setToken(token);
         try {
@@ -91,6 +100,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login: handleLogin,
         logout: handleLogout,
         refresh: handleRefresh,
+        hasSeenSplash,
+        setHasSeenSplash,
       }}
     >
       {children}

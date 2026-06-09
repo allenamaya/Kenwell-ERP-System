@@ -22,22 +22,34 @@ class ApiClient {
 
   private loadToken() {
     if (typeof window !== 'undefined') {
-      this.accessToken = localStorage.getItem('access_token');
+      try {
+        this.accessToken = localStorage.getItem('access_token');
+      } catch (e) {
+        console.warn('localStorage read blocked:', e);
+      }
     }
   }
 
   setToken(token: string) {
     this.accessToken = token;
     if (typeof window !== 'undefined') {
-      localStorage.setItem('access_token', token);
+      try {
+        localStorage.setItem('access_token', token);
+      } catch (e) {
+        console.warn('localStorage write blocked:', e);
+      }
     }
   }
 
   clearToken() {
     this.accessToken = null;
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
+      try {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+      } catch (e) {
+        console.warn('localStorage remove blocked:', e);
+      }
     }
   }
 

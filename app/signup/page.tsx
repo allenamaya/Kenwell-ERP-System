@@ -13,7 +13,7 @@ import { useAuth } from '@/lib/auth-context';
 
 export default function SignupPage() {
   const router = useRouter();
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, hasSeenSplash } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -21,16 +21,23 @@ export default function SignupPage() {
 
   // Check if splash screen has been seen in this session and handle auth redirect
   useEffect(() => {
+    let sessionSeen = false;
     if (typeof window !== 'undefined') {
-      if (isAuthenticated) {
-        router.push('/dashboard');
-      } else if (!sessionStorage.getItem('hasSeenSplash')) {
-        router.push('/?redirect=/signup');
-      } else {
-        setMounted(true);
+      try {
+        sessionSeen = sessionStorage.getItem('hasSeenSplash') === 'true';
+      } catch (e) {
+        console.warn('sessionStorage read blocked in SignupPage:', e);
       }
     }
-  }, [router, isAuthenticated]);
+
+    if (isAuthenticated) {
+      router.push('/dashboard');
+    } else if (!hasSeenSplash && !sessionSeen) {
+      router.push('/?redirect=/signup');
+    } else {
+      setMounted(true);
+    }
+  }, [router, isAuthenticated, hasSeenSplash]);
 
   if (!mounted || isAuthenticated) {
     return <div className="min-h-screen bg-background" />;

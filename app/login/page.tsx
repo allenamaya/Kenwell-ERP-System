@@ -12,7 +12,7 @@ import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, hasSeenSplash } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -21,16 +21,23 @@ export default function LoginPage() {
 
   // Check if splash screen has been seen in this session and handle auth redirect
   useEffect(() => {
+    let sessionSeen = false;
     if (typeof window !== 'undefined') {
-      if (isAuthenticated) {
-        router.push('/dashboard');
-      } else if (!sessionStorage.getItem('hasSeenSplash')) {
-        router.push('/?redirect=/login');
-      } else {
-        setMounted(true);
+      try {
+        sessionSeen = sessionStorage.getItem('hasSeenSplash') === 'true';
+      } catch (e) {
+        console.warn('sessionStorage read blocked in LoginPage:', e);
       }
     }
-  }, [router, isAuthenticated]);
+
+    if (isAuthenticated) {
+      router.push('/dashboard');
+    } else if (!hasSeenSplash && !sessionSeen) {
+      router.push('/?redirect=/login');
+    } else {
+      setMounted(true);
+    }
+  }, [router, isAuthenticated, hasSeenSplash]);
 
   if (!mounted || isAuthenticated) {
     return <div className="min-h-screen bg-background" />;

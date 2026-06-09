@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 
 export default function Page() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, setHasSeenSplash } = useAuth();
   const router = useRouter();
   const [hasStarted, setHasStarted] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
@@ -198,8 +198,13 @@ export default function Page() {
 
       // Perform routing redirect at 3.7 seconds
       const redirectTimer = setTimeout(() => {
+        setHasSeenSplash(true);
         if (typeof window !== 'undefined') {
-          sessionStorage.setItem('hasSeenSplash', 'true');
+          try {
+            sessionStorage.setItem('hasSeenSplash', 'true');
+          } catch (e) {
+            console.warn('sessionStorage write blocked:', e);
+          }
           const params = new URLSearchParams(window.location.search);
           const redirectPath = params.get('redirect') || (isAuthenticated ? '/dashboard' : '/signup');
           router.push(redirectPath);
@@ -213,7 +218,7 @@ export default function Page() {
         clearTimeout(redirectTimer);
       };
     }
-  }, [isLoading, isAuthenticated, router]);
+  }, [isLoading, isAuthenticated, router, setHasSeenSplash]);
 
   return (
     <div className={`min-h-screen flex flex-col items-center justify-center bg-black transition-opacity duration-700 relative overflow-hidden select-none ${isExiting ? 'page-exit' : ''}`}>
