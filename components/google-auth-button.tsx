@@ -35,15 +35,34 @@ export function GoogleAuthButton() {
     document.head.appendChild(script);
   }, [clientID]);
 
+  const [btnWidth, setBtnWidth] = useState(380);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const handleResize = () => {
+        const width = Math.min(380, window.innerWidth - 64);
+        setBtnWidth(Math.max(200, width));
+      };
+
+      handleResize();
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
+
   // Render the Google Button automatically when ready
   useEffect(() => {
     if (googleReady && window.google?.accounts?.id && clientID) {
-      window.google.accounts.id.renderButton(
-        document.getElementById('google-signin-button')!,
-        { theme: 'outline', size: 'large', width: '380px' }
-      );
+      const container = document.getElementById('google-signin-button');
+      if (container) {
+        container.innerHTML = '';
+        window.google.accounts.id.renderButton(
+          container,
+          { theme: 'outline', size: 'large', width: btnWidth }
+        );
+      }
     }
-  }, [googleReady, clientID]);
+  }, [googleReady, clientID, btnWidth]);
 
   const handleGoogleCallback = async (response: any) => {
     try {

@@ -194,13 +194,6 @@ export default function SignupPage() {
           {/* Google OAuth */}
           <GoogleAuthButton />
 
-          {/* Divider */}
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-border" />
-            <span className="text-xs text-muted-foreground">or</span>
-            <div className="flex-1 h-px bg-border" />
-          </div>
-
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Error Message */}
