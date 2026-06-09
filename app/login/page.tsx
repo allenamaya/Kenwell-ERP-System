@@ -63,14 +63,14 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="mb-8 text-center">
             <img
-              src="/logo-light-mode.png"
+              src="/logo-light-mode.svg"
               alt="Kenwell Logo"
-              className="h-12 mx-auto mb-4 dark:hidden"
+              className="h-18 mx-auto mb-4 dark:hidden"
             />
             <img
-              src="/logo-dark-mode.png"
+              src="/logo-dark-mode.svg"
               alt="Kenwell Logo"
-              className="h-12 mx-auto mb-4 hidden dark:block"
+              className="h-18 mx-auto mb-4 hidden dark:block"
             />
             <h1 className="font-heading text-3xl font-bold text-primary mb-2">
               Kenwell Insurance

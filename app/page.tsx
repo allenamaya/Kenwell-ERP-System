@@ -218,9 +218,9 @@ export default function Page() {
       <div className="text-center z-10 flex flex-col items-center">
         <div className="animate-logo mb-6 relative p-4 rounded-2xl bg-gradient-to-b from-white/5 to-transparent border border-white/5 shadow-2xl backdrop-blur-sm">
           <img
-            src="/logo-dark-mode.png"
+            src="/logo-dark-mode.svg"
             alt="Kenwell Logo"
-            className="h-16 w-auto select-none pointer-events-none"
+            className="h-28 w-auto select-none pointer-events-none"
             draggable="false"
           />
         </div>

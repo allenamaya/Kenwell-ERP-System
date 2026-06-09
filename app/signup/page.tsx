@@ -181,14 +181,14 @@ export default function SignupPage() {
         {/* Header */}
         <div className="p-6 border-b border-border text-center">
           <img
-            src="/logo-light-mode.png"
+            src="/logo-light-mode.svg"
             alt="Kenwell Logo"
-            className="h-10 mx-auto mb-3 dark:hidden"
+            className="h-16 mx-auto mb-3 dark:hidden"
           />
           <img
-            src="/logo-dark-mode.png"
+            src="/logo-dark-mode.svg"
             alt="Kenwell Logo"
-            className="h-10 mx-auto mb-3 hidden dark:block"
+            className="h-16 mx-auto mb-3 hidden dark:block"
           />
           <h1 className="font-heading text-2xl font-bold text-foreground">
             Create Account
