@@ -17,11 +17,16 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [mounted, setMounted] = useState(false);
 
   // Check if splash screen has been seen in this session
   useEffect(() => {
-    if (typeof window !== 'undefined' && !sessionStorage.getItem('hasSeenSplash')) {
-      router.push('/?redirect=/login');
+    if (typeof window !== 'undefined') {
+      if (!sessionStorage.getItem('hasSeenSplash')) {
+        router.push('/?redirect=/login');
+      } else {
+        setMounted(true);
+      }
     }
   }, [router]);
 
@@ -29,6 +34,10 @@ export default function LoginPage() {
   if (isAuthenticated) {
     router.push('/dashboard');
     return null;
+  }
+
+  if (!mounted) {
+    return <div className="min-h-screen bg-background" />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {

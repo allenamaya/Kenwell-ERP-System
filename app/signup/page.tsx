@@ -15,13 +15,22 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [mounted, setMounted] = useState(false);
 
   // Check if splash screen has been seen in this session
   useEffect(() => {
-    if (typeof window !== 'undefined' && !sessionStorage.getItem('hasSeenSplash')) {
-      router.push('/?redirect=/signup');
+    if (typeof window !== 'undefined') {
+      if (!sessionStorage.getItem('hasSeenSplash')) {
+        router.push('/?redirect=/signup');
+      } else {
+        setMounted(true);
+      }
     }
   }, [router]);
+
+  if (!mounted) {
+    return <div className="min-h-screen bg-background" />;
+  }
   
   const [formData, setFormData] = useState({
     first_name: '',
